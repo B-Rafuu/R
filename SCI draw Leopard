@@ -1,0 +1,2467 @@
+#JLX-Baijiahui
+#Leopard
+
+#variables
+##numeric and integer
+x <- 1
+y <- c(1,2,4,5)
+z <- 1:8
+a <- 1.5
+b <- c(1.1,2.8,3.4)
+
+class(x)
+typeof(x)
+
+class(z)
+typeof(z)
+
+##sequence numbers
+x <- seq(from = 1, to = 10, by = 2)
+y <- seq(from = 1, to = 10, length.out = 6)
+z <- seq(from = 10, to = 1, by = -2)
+
+##repeated numbers
+rep(1:4,times = 2)
+rep(1:4,each = 2)
+
+##random numbers
+sample(1:100, 10)
+sample(1:10,20,replace = TRUE)
+sample(1:5,10,rep = T,prob = c(0.1,0.1,0.1,0.2,0.5))
+
+set.seed(123)
+rnorm(n = 100,mean = 10,sd = 5)
+rbeta(n = 100, 10, 6)
+
+##string
+
+my_string <- c('I LOVE CHINA','我爱中国')
+
+letters
+LETTERS
+month.abb
+month.name
+state.abb
+state.name
+
+my_string2 <- '123'
+my_string3 <- '234'
+
+my_string2+my_string3
+
+paste(my_string2,my_string3)
+paste(my_string2,my_string3,sep = '_')
+paste(my_string2,my_string3,sep = '')
+
+paste0(my_string2,my_string3)
+
+my_string4 <- '123_234'
+strsplit(my_string4,split = '2')
+
+#logic variable (boor vector)
+my_logics <- c(2>1, 3==4, 4>=6, 78>56 & 67>78, 78>56|67>78)
+
+TRUE+FALSE
+
+head(iris)
+
+iris[iris$Sepal.Length > 7.5,]
+iris[iris$Species == 'setosa',]
+iris[iris$Sepal.Length>7.5 & iris$Sepal.Width>3.0,]
+iris$Sepal.Length[iris$Species == 'setosa']
+
+#factor
+
+my_factors <- factor(1:5)
+
+levels(my_factors)
+nlevels(my_factors)
+
+my_factors2 <- factor(c('A','B','C','D'),
+                      levels = c('D','A','B','C'))
+
+my_factors3 <- factor(c('1','2'),
+                      labels = c('male','female'))
+
+
+ages <- sample(10:100,30)
+
+ages2 <- cut(ages,
+             breaks = c(10,30,60,100),
+             labels = c('young','middle','old'),
+             include.lowest = TRUE,
+             right = FALSE)
+
+#向量与向量化运算
+x <- sample(1:100,10)
+x[5]
+x[5:8]
+
+y <- 1:5
+z <- 2:6
+y+z
+
+a <- 10
+y+a
+
+b <- c(5,10)
+y+b
+
+#data frame
+
+my_df <- data.frame(name =  c('张三','李四','王五'),
+                    age = c(34,45,49),
+                    sex = c(1,2,1),
+                    sbp = c(156,134,159))
+
+
+my_df2 <- data.frame(x = 1:4,
+                     y = 1:2)
+
+
+View(my_df)
+
+str(my_df)
+
+my_df$age
+
+
+#ggplot2中常用的数据结构
+
+#wide format
+
+wide_data <- data.frame(names = c('Zhang San','Li Si','Wang Wu',
+                              'Zhao Liu'),
+                    age = c(76,72,57,69),
+                    sex = c('M','M','F','F'),
+                    SBP1 = c(176,196,188,187),
+                    SBP2 = c(170,187,180,183),
+                    SBP3 = c(167,172,171,182))
+#install.packages('tidyr')
+library(tidyr)
+
+long_data <- gather(wide_data,key = 'Week',value = 'SBP',
+                    -c(names,age,sex))
+
+#本地数据读取
+
+iris_csv <- read.csv('~/desktop/JLX/csv_data.csv⁩',
+                     stringsAsFactors = F)
+
+iris_table <- read.table('~/desktop/JLX/txt_data.txt⁩')
+
+iris2 <- read.table('iris2.txt',sep = ';')
+
+library(readxl)
+
+iris_excel <- read_excel('iris.xlsx')
+
+readr::
+  
+  install.packages('data.table')
+
+data.table::fread
+
+#常用r包安装
+install.packages('tidyverse')
+devtools::install_github('EmilHvitfeldt/paletteer')
+BiocManager::install('ggtree')
+
+
+
+#ggplot2绘图原理
+
+
+ggplot(mtcars,aes(mpg,qsec,color = factor(cyl)))+
+  geom_point(size = 3)+
+  theme_bw()+
+  scale_color_lancet()+
+  scale_x_continuous()+
+  scale_y_continuous()
+
+
+#--------------------------------------------------------------
+#绘图代码
+#连续型变量可视化
+#盒型图&小提琴图
+#install.packages(c('tidyverse','ggsci','cowplot'))
+library(tidyverse)
+library(ggsci)
+library(cowplot)
+
+p1 <- ggplot(mtcars,aes(x = 1,y = qsec))+
+  geom_boxplot(fill = 'forestgreen')+
+  theme_classic()
+
+p2 <- ggplot(mtcars,aes(x = 1, y = qsec))+
+  geom_violin(fill = 'deeppink')+
+  theme_classic()
+
+plot_grid(p1,p2,ncol=2,labels = c('A','B'),align = c('v','h'))
+
+#直方图&密度曲线
+dat <- tibble(x = rnorm(100,5,2))
+
+p1 <- ggplot(dat,aes(x))+
+  geom_histogram(fill = 'forestgreen',color = 'black')+
+  theme_classic()
+
+p2 <- ggplot(dat,aes(x))+
+  geom_density(fill = 'deeppink',color = NA)+
+  theme_classic()
+
+plot_grid(p1,p2,ncol=2,labels = c('A','B'),align = c('v','h'))
+
+#多组盒型图&多组小提琴图&多组密度曲线
+p1 <- ggplot(mtcars,aes(x = factor(cyl),y = qsec,fill = factor(cyl)))+
+  geom_boxplot()+
+  theme_classic()+
+  scale_fill_lancet()+
+  theme(legend.position = c(.8,.8))
+
+p2 <- ggplot(mtcars,aes(x = factor(cyl),y = qsec,fill = factor(cyl)))+
+  geom_violin()+
+  theme_classic()+
+  scale_fill_lancet()+
+  theme(legend.position = c(.8,.8))
+
+p3 <- ggplot(mtcars,aes(qsec,fill = factor(cyl)))+
+  geom_density(alpha = .5,color = NA)+
+  theme_classic()+
+  scale_fill_npg()+
+  theme(legend.position = c(.8,.8))
+
+plot_grid(p1,p2,p3,ncol=3,labels = c('A','B','C'),align = c('v','h'))
+
+#密度曲线的三种不同排列方式
+#library(RColorBrewer)
+p1 <- ggplot(mtcars,aes(qsec,fill = factor(cyl)))+
+  geom_density(alpha = .5,color = NA)+
+  theme_classic()+
+  scale_fill_brewer(palette="Accent")+
+  theme(legend.position = c(.8,.8))
+
+p2 <- ggplot(mtcars,aes(qsec,fill = factor(cyl)))+
+  geom_density(alpha = .5,color = NA,position = 'stack')+
+  theme_classic()+
+  scale_fill_brewer(palette="Accent")+
+  theme(legend.position = c(.8,.8))
+
+p3 <- ggplot(mtcars,aes(qsec,fill = factor(cyl)))+
+  geom_density(alpha = .5,color = NA,position = 'fill')+
+  theme_classic()+
+  scale_fill_brewer(palette="Accent")+
+  theme(legend.position = 'none')
+plot_grid(p1,p2,p3,ncol=3,labels = c('A','B','C'),align = c('v','h'))
+
+#山脊图
+set.seed(2019)
+dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+
+ggplot(dsamp,aes(carat,fill = clarity))+
+  geom_density(alpha = .5,color = NA)+
+  scale_fill_brewer(palette = 'Set2')+
+  theme_classic()+
+  theme(legend.position = c(.85,.65))
+
+
+install.packages('ggridges')
+library(ggridges)
+
+ggplot(dsamp,aes(x = carat,y = clarity, fill = clarity))+
+  geom_density_ridges(alpha = .5)+
+  scale_fill_brewer(palette = 'Set3')+
+  theme_classic()
+
+#最简单的散点图
+ggplot(mtcars,aes(mpg,qsec))+
+  geom_point(size = 2,color = '#00468b')+
+  theme_classic()
+
+#散点的颜色：边框色与填充色
+
+mtcars <- mtcars %>% as_tibble() %>% mutate(cyl = factor(cyl))
+p1 <- ggplot(mtcars,aes(mpg,qsec,color = cyl))+
+  geom_point(size = 2,shape = 1, fill = 'gray')+
+  theme_classic()+
+  scale_color_jama()+
+  theme(legend.position = c(.1,.8))
+
+p2 <- ggplot(mtcars,aes(mpg,qsec,color = cyl))+
+  geom_point(size = 2,shape = 21, fill = 'gray')+
+  theme_classic()+
+  scale_color_aaas()+
+  theme(legend.position = c(.1,.8))
+
+plot_grid(p1,p2,ncol=2,labels = c('A','B'),align = c('v','h'))
+
+#25种不同的点型
+plot(rep(1:5,times = 5), rep(1:5,each = 5), pch = 1:25, cex = 1.5, 
+     bty = 'l', xlim = c(1,5.4),xlab = '',ylab = '',
+     main = '25 different point shapes')
+text(rep(1:5,times = 5)+0.15,rep(1:5,each = 5),labels = 1:25,
+     col = 'red')
+
+#散点颜色的设置：21号点型的应用
+mtcars <- mtcars %>% as_tibble() %>% mutate(cyl = factor(cyl),
+                                            carb = factor(carb))
+p1 <- ggplot(mtcars,aes(mpg,qsec,fill = cyl))+
+  geom_point(size = 3,shape = 21, color = 'black')+
+  theme_classic()+
+  theme(legend.position = c(.1,.8),
+        legend.background = element_rect(color = 'black'))
+
+p2 <- ggplot(mtcars,aes(mpg,qsec,fill = carb))+
+  geom_point(size = 3,shape = 21, color = 'black')+
+  theme_classic()+
+  theme(legend.position = c(.1,.7),
+        legend.background = element_rect(color = 'black'))
+
+plot_grid(p1,p2,ncol=2,labels = c('A','B'),align = c('v','h'))
+
+
+#画个甜甜圈：圆圈的粗细
+mtcars <- mtcars %>% as_tibble() %>% mutate(cyl = factor(cyl))
+
+ggplot(mtcars,aes(mpg,qsec,color = cyl))+
+  geom_point(size = 2,shape = 1, stroke = 1.5)+
+  theme_classic()+
+  scale_color_lancet()+
+  theme(legend.position = c(.1,.8))
+
+#散点的渐变色
+mtcars <- mtcars %>% as_tibble() %>% mutate(cyl = 
+                                              as.numeric(as.character(cyl)))
+ggplot(mtcars,aes(mpg,qsec,color = cyl))+
+  geom_point(size = 2)+
+  theme_classic()+
+  theme(legend.position = c(.1,.8))
+
+ggplot(mtcars,aes(mpg,qsec,color = cyl))+
+  geom_point(size = 2)+
+  theme_classic()+
+  theme(legend.position = c(.1,.8))+
+  scale_color_gradient(low = '#fee0d2',high = '#de2d26')
+
+#散点的渐变色：学会使用双色梯度表示正负数
+set.seed(2019)
+dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+ggplot(dsamp, aes(carat, price)) +
+  geom_point(aes(color = depth))+
+  scale_color_gradient(low = '#fde0dd',high = '#c51b8a')+
+  theme(legend.position = c(.85,.25))
+
+dsamp <- dsamp %>% mutate(depth = depth - median(depth))
+
+p1 <- ggplot(dsamp, aes(carat, price)) +
+  geom_point(aes(fill = depth),shape=21, color = 'black',size = 2)+
+  scale_fill_gradient2(low = '#41ab5d',
+                       mid = 'white',
+                       high = '#e31a1c',
+                       midpoint = 0)+
+  theme(legend.position = c(.1,.8))
+
+p2 <- ggplot(dsamp, aes(carat, price)) +
+  geom_point(aes(fill = depth),shape=21, color = 'black',size = 2)+
+  scale_fill_gsea()+
+  theme(legend.position = c(.1,.8))
+
+plot_grid(p1,p2,ncol=2,labels = c('A','B'),align = c('v','h'))
+
+
+#气泡图：学会合理使用散点的大小属性
+set.seed(2019)
+dsamp <- diamonds[sample(nrow(diamonds), 500), ]
+
+ggplot(dsamp, aes(carat, price)) +
+  geom_point(aes(size = x,fill = cut),shape=21, 
+             color = 'black')+
+  scale_fill_brewer(palette = 'Set2')
+
+#散点大小的设置
+set.seed(2019)
+dsamp <- diamonds[sample(nrow(diamonds), 500), ]
+
+ggplot(dsamp, aes(carat, price)) +
+  geom_point(aes(size = x,fill = cut),shape=21, 
+             color = 'black')+
+  scale_fill_brewer(palette = 'Set2')+
+  scale_size_continuous(name = 'Size',
+                        breaks = c(5,7,9),
+                        labels = c('Small','Middle','Large'))
+
+#合理变换数据，使散点大小分布更均匀
+set.seed(2019)
+dsamp <- diamonds[sample(nrow(diamonds), 500), ]
+dsamp <-  dsamp %>% mutate(x = exp(x))
+
+p1 <- ggplot(dsamp, aes(carat, price)) +
+  geom_point(aes(size = x,fill = cut),shape=21, 
+             color = 'black')+
+  scale_fill_brewer(palette = 'Set2')
+
+p2 <- ggplot(dsamp, aes(carat, price)) +
+  geom_point(aes(size = log(x),fill = cut),shape=21, 
+             color = 'black')+
+  scale_fill_brewer(palette = 'Set2')
+
+plot_grid(p1,p2,ncol=2,labels = c('A','B'),align = c('v','h'))
+
+
+#散点图遇上密度图
+install.packages("ggExtra")
+library(ggExtra)
+
+piris <- ggplot(iris, aes(Sepal.Length, Sepal.Width, 
+                          color = Species)) +
+  geom_point(shape=21, size = 3,stroke = 1.2)+
+  scale_color_npg()+
+  theme_bw()+
+  theme(legend.position = c(.1,.86))
+ggMarginal(piris, type= 'density',
+           groupFill = TRUE)
+
+
+#相关矩阵图
+install.packages("ggcorrplot")
+library(ggcorrplot)
+
+mtcars2 <- mtcars %>% select(c('mpg','disp','hp',
+                              'drat','wt','qsec'))
+corr <- round(cor(mtcars2), 1)
+corr
+p1 <- ggcorrplot(corr, method = 'square')
+
+p2 <- ggcorrplot(corr, method = "circle")
+
+plot_grid(p1,p2,ncol=2,labels = LETTERS[1:2],align = c('v','h'))
+
+#相关矩阵图的不同表现形式
+
+p1 <- ggcorrplot(
+  corr,
+  type = "lower",
+  outline.color = "white",
+  colors = c("#6D9EC1", "white", "#E46726")
+)
+
+p2 <- ggcorrplot(
+  corr,
+  type = "upper",
+  outline.color = "white",
+  colors = c("#084594", "white", "#ef3b2c")
+)
+
+p3 <- ggcorrplot(corr,
+                 type = "lower",
+                 lab = TRUE)
+
+p.mat <- cor_pmat(mtcars2)
+
+p4 <- ggcorrplot(corr,
+                 type = "lower",
+                 p.mat = p.mat)
+
+plot_grid(p1,p2,p3,p4,ncol=2,labels = LETTERS[1:4],align = c('v','h'))
+
+#简单的折线图
+set.seed(2019)
+x <- 1:8
+dat <- tibble(x = x,
+              y = 1.2*x+5+rnorm(8,0,3))
+
+ggplot(dat,aes(x, y))+
+  geom_line(color = '#41b6c4',size = .8)+
+  theme_classic()
+
+#散点+折线，颜值立马变
+
+set.seed(2019)
+x <- 1:8
+dat <- tibble(x = rep(x,2),
+              y = 1.2*x+5+rnorm(16,0,2),
+              group = rep(c('Group1','Group2'),each = 8))
+
+p1 <- ggplot(dat,aes(x, y, color = group))+
+  geom_line(size = .8)+
+  scale_color_d3()+
+  theme_classic()+
+  theme(legend.position = c(.85,.15))
+
+
+p2 <- ggplot(dat,aes(x, y, color = group))+
+  geom_line(size = .8)+
+  geom_point(shape = 21,color = 'black',size=3,fill = 'white')+
+  scale_color_d3()+
+  theme_classic()+
+  theme(legend.position = c(.85,.15))
+
+plot_grid(p1,p2,ncol=2,labels = LETTERS[1:2],align = c('v','h'))
+
+#合理处理差距过大的数据，让折线更协调
+set.seed(2020)
+id <- 1:8
+dat <- tibble(x = rep(id,2),
+              y = c(2*id+rnorm(8,0,1),
+                    6*id+rnorm(8,0,2)),
+              group = rep(c('Group1','Group2'),each = 8))
+
+p1 <- ggplot(dat,aes(x, y, color = group))+
+  geom_line(size = .8)+
+  geom_point(shape = 21,color = 'black',size=3,fill = 'white')+
+  scale_color_d3()+
+  theme_classic()+
+  theme(legend.position = c(.15,.85))
+
+p2 <- ggplot(dat,aes(x, log(y), color = group))+
+  geom_line(size = .8)+
+  geom_point(shape = 21,color = 'black',size=3,fill = 'white')+
+  scale_color_d3()+
+  theme_classic()+
+  theme(legend.position = c(.15,.85))
+
+p3 <- ggplot(dat,aes(x, y))+
+  geom_line(size = .8,color = '#2b8cbe')+
+  geom_point(shape = 21,color = 'black',size=3,fill = 'white')+
+  theme_classic()+
+  facet_wrap(~group,ncol = 2,scales = 'free_y')+
+  theme(legend.position = c(.15,.85),
+        strip.background = element_blank(),
+        strip.text = element_text(size = 12))
+
+p4 <- plot_grid(p1,p2,ncol=2,labels = LETTERS[1:2],align = c('v','h'))
+plot_grid(p4,p3,ncol=1,labels = c('','C'),align = c('v','h'))
+
+#配对坡度图
+data <- structure(list(
+  Date = structure(c(1, 1, 1, 1, 1, 2, 2, 2, 2, 2), 
+                   .Label = c("11-May-19", "18-May-19"), 
+                   class = "factor"), 
+  Party = structure(rep(1:5,2), 
+                    .Label = c("Green", "Liberal", "NDP", "Others", "PC"), 
+                    class = "factor"), 
+  Pct = c(42.3, 28.4, 22.1, 8.4, 1.8, 37.9, 33.3, 27.3, 5, 8.4)), 
+  class = "data.frame", 
+  row.names = c(NA, -10L))
+
+ggplot(data = data, aes(x = Date, y = Pct, 
+                        group = Party,color = Party)) +
+  geom_line(size = 2) +
+  geom_point(size = 4) +
+  annotate('text',x = 2.1,y = c(37.9, 33.3, 27.3, 5, 8.4),
+           label = c("Green", "Liberal", "NDP", "Others", "PC"))+
+  scale_x_discrete(position = "top") +
+  scale_color_brewer(palette = 'Paired')+
+  theme_bw() +
+  theme(legend.position = 'none') +
+  theme(panel.border = element_blank())
+
+
+#面积图
+bmi <- tibble(year = rep(1975:2016,5),
+              group = rep(c('BMI < -2SD','-2SD<=BMI< -1SD','-1SD<=BMI<=1SD',
+                            '1SD<BMI<=2SD','BMI>2SD'),each = 42),
+              prevalence = c(sample(1:10,42,replace = TRUE),
+                             sample(5:20,42,replace = TRUE),
+                             sample(30:50,42,replace = TRUE),
+                             sample(1:10,42,replace = TRUE),
+                             sample(1:10,42,replace = TRUE)))
+bmi <- bmi %>% 
+  mutate(group = factor(group,levels = c('BMI < -2SD','-2SD<=BMI< -1SD',
+                                         '-1SD<=BMI<=1SD','1SD<BMI<=2SD',
+                                         'BMI>2SD')))
+
+ggplot(bmi,aes(year, prevalence, fill = group))+
+  geom_area(color = NA,position = 'fill')+
+  scale_fill_lancet(name = '')+
+  scale_x_continuous(expand = c(0,0))+
+  scale_y_continuous(expand = c(0,0),labels = scales::percent)+
+  xlab('Year')+
+  ylab('Prevalence')+
+  guides(fill = guide_legend(ncol = 2))+
+  theme(legend.position = 'bottom')
+
+#平滑曲线
+set.seed(2019)
+dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+
+p1 <- ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  geom_smooth(se = .8)+
+  theme(legend.position = c(.1,.8))
+
+##巧用数据叠加
+p2 <- ggplot()+
+  geom_point(data = dsamp,aes(carat, price, fill = cut),
+             shape = 21, color = 'black', size = 3)+
+  geom_smooth(data = dsamp,aes(carat, price),se = .8)+
+  theme(legend.position = c(.1,.8))
+
+plot_grid(p1,p2,ncol=2,labels = LETTERS[1:2],align = c('v','h'))
+
+
+#ggplot2内置了很多平滑方法
+
+p <- ggplot(mtcars, aes(x = hp, y = mpg)) + 
+  geom_point(size = 3,shape = 21,fill = '#5dc863',color = 'black')
+
+p1 <- p + geom_smooth(method = "lm", formula = y ~ x, size = 1)+
+  ggtitle(label = 'liner model')
+
+p2 <- p + geom_smooth(method = "lm", formula = y ~ poly(x, 2), size = 1)+
+  ggtitle(label = 'polynomial regression')
+
+p3 <- p + geom_smooth(method = "gam", formula = y ~ x, size = 1)+
+  ggtitle(label = 'GAM model')
+
+p4 <- p + geom_smooth(method = "gam", formula = y ~ s(x), size = 1)+
+  ggtitle(label = 'GAM model with spline')
+
+plot_grid(p1,p2,p3,p4,ncol=2,labels = LETTERS[1:4],align = c('v','h'))
+
+#生存曲线
+
+install.packages("survminer")
+library(survminer)
+library(survival)
+
+fit <- survfit(Surv(time, status) ~ sex, data = lung)
+p1 <- ggsurvplot(fit, data = lung,
+                 legend.title = 'Sex',
+                 legend = c(.85,.8))
+
+p2 <- ggsurvplot(
+  fit, 
+  data = lung, 
+  size = 1,                
+  palette = c("#E7B800", "#2E9FDF"),
+  conf.int = TRUE,          
+  pval = TRUE,              
+  risk.table = TRUE,        
+  risk.table.col = "strata",
+  legend.labs = 
+    c("Male", "Female"),    
+  risk.table.height = 0.25, 
+  ggtheme = theme_bw(),
+  legend.title = 'Sex',
+  legend = c(.85,.8)
+)
+
+arrange_ggsurvplots(list(p1,p2),ncol = 2,nrow = 1)
+
+#三个连续型变量的“三角恋”
+install.packages('ggtern')
+library(ggtern)
+
+set.seed(2019)
+x  <- data.frame(
+  x1 = c( 0.1, 0.2, 0.6, 0.1, 0.6, 0.2 ),
+  x2 = c( 0.1, 0.1, 0.5, 0.3, 0.2, 0.8 ),
+  x3 = c( 0.1, 0.3, 0.4, 0.6, 0.2, 0.1 ),
+  label = LETTERS[1:6]
+)
+
+ggtern(data=x,aes(x1,x2,x3)) + 
+  geom_point(fill="forestgreen",shape=21,size = 4)+ 
+  geom_text(aes(label = label),vjust = 1.7)+
+  theme_bw()
+
+#继续三元图
+ggtern(data=iris,aes(x = Sepal.Length,
+                     y = Sepal.Width,
+                     z = Petal.Length,
+                     fill = Species,
+                     size = Petal.Width))+
+  Tlab("") + Llab("") + Rlab("") + 
+  Tarrowlab("Sepal.Width")+
+  Larrowlab("Sepal.Length")+
+  Rarrowlab("Petal.Length")+
+  geom_point(shape=21)+
+  scale_fill_npg()+
+  theme_showarrows()
+
+#三元密度图
+set.seed(2019)
+a <- tibble(x=rnorm(20000, 80, 30), 
+            y=rnorm(20000, 100, 30), 
+            z = rnorm(20000, 60, 20))
+
+ggtern(data=a,aes(x,y,z))+
+  stat_density_tern(aes(fill = ..level..,alpha = ..level..),
+                    geom = 'polygon')+
+  scale_fill_gradient(low = '#fcbba1',high = '#ef3b2c')+
+  theme_showarrows()+
+  guides(color = "none", fill = "none", alpha = "none")  
+
+#群魔乱舞之雷达图
+
+devtools::install_github("ricardo-bion/ggradar", 
+                         dependencies = TRUE)
+library(ggradar)
+
+mtcars_radar <- mtcars%>% 
+  tail(4) %>% 
+  select(1:10)%>%
+  mutate_all(rescale)
+
+group <- paste0('Group',LETTERS[1:4])
+mtcars_radar <- cbind(group,mtcars_radar)
+
+ggradar(mtcars_radar,group.point.size = 4,
+        group.line.width = 1.2,
+        legend.text.size = 8,
+        legend.position = 'right')
+
+#拉一曲和弦
+install.packages('circlize')
+library(circlize)
+
+set.seed(2019)
+
+numbers <- sample(c(1:1000), 100, replace = T)
+data <- matrix( numbers, ncol=5)
+rownames(data) <- paste0("Set-", seq(1,20))
+colnames(data) <- paste0("Pair-", seq(1,5))
+
+chordDiagram(data, transparency = 0.5)
+
+#-----------------------------------------------------------
+#离散变量可视化
+
+#来一张大饼图
+injuries <- tibble(type = c('Road injury','Self-harm','CVD',
+                            'Cancers','Infectious Diseases'),
+                   counts = c(214,123,69,24,17),
+                   share = counts/sum(counts)*100)
+
+p1 <- ggplot(injuries,aes('', y = counts, fill = type))+
+  geom_bar(width = 1, size = 1, color = 'white',stat = 'identity')+
+  coord_polar(theta = 'y')+
+  geom_text(aes(label = paste0(round(share,1),'%')),
+            position = position_stack(vjust = .5))+
+  labs(x = NULL, y = NULL, fill = NULL, 
+       title = "Injury proportion in young adults")+
+  scale_fill_npg()+
+  theme_classic() +
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        plot.title = element_text(hjust = 0.5, color = "#666666"))
+
+injuries2 <- injuries %>% mutate(
+  type = factor(type, levels = type[order(counts)])) 
+p2 <- ggplot(injuries2,aes('', y = counts, fill = type))+
+  geom_bar(width = 1, size = 1, color = 'white',stat = 'identity')+
+  coord_polar(theta = 'y')+
+  geom_text(aes(label = paste0(round(share,1),'%')),
+            position = position_stack(vjust = .5))+
+  labs(x = NULL, y = NULL, fill = NULL, 
+       title = "Injury proportion in young adults")+
+  scale_fill_npg()+
+  theme_classic() +
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        plot.title = element_text(hjust = 0.5, color = "#666666"))+
+  guides(fill = guide_legend(reverse = TRUE))
+
+plot_grid(p1,p2,ncol=2,labels = LETTERS[1:2],align = c('v','h'))
+
+#画一朵玫瑰
+ggplot(injuries,aes(x = type, y = counts, fill = type))+
+  geom_bar(width = 1,color = 'black',stat = 'identity')+
+  coord_polar(theta = 'x')+
+  geom_text(aes(label = paste0(round(share,1),'%'),
+                y = counts+2))+
+  labs(x = NULL, y = NULL, fill = NULL, 
+       title = "Injury proportion in young adults")+
+  scale_fill_tron()+
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5, color = "#666666"),
+        panel.border = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank(),
+        legend.position = 'none')
+
+#多层玫瑰图
+injuries <- tibble(age = rep(c('Young adults',
+                               'Middle-aged people',
+                               'the elders'),each=5),
+                   type = rep(c('Road injury','Self-harm','CVD',
+                                'Cancers','Infectious Diseases'),3),
+                   counts = c(214,123,69,24,17,
+                              129,110,201,101,45,
+                              56,32,212,189,78))
+injuries <- injuries %>% 
+  mutate(age = factor(age, levels = c('Young adults',
+                                      'Middle-aged people',
+                                      'the elders')))
+injuries <- injuries %>%
+  mutate(type = factor(type,levels = c('CVD','Road injury','Cancers',
+                                       'Self-harm','Infectious Diseases')))
+ggplot(injuries,aes(x = type, y = counts, fill = age))+
+  geom_bar(width = 1,color = 'black',stat = 'identity',size = .2)+
+  coord_polar(theta = 'x')+
+  labs(x = NULL, y = NULL, fill = NULL, 
+       title = "Injury proportion in young adults")+
+  scale_fill_brewer(palette = 'Blues')+
+  theme(plot.title = element_text(hjust = 0.5, color = "#666666"),
+        panel.border = element_blank(),
+        panel.background = element_blank())
+
+#把饼掏个洞，就是一枚戒指了
+injuries <- tibble(type = c('Road injury','Self-harm','CVD',
+                            'Cancers','Infectious Diseases'),
+                   counts = c(114,103,69,54,47),
+                   share = counts/sum(counts)*100)
+
+ggplot(injuries,aes(x = 1, y = share, fill = type))+
+  geom_bar(width = 0.3,stat = 'identity')+
+  coord_polar(theta = 'y')+
+  geom_text(aes(label = paste0(round(share,1),'%')),
+            position = position_stack(vjust = .5))+
+  labs(x = NULL, y = NULL, fill = NULL, 
+       title = "Injury proportion in young adults")+
+  scale_fill_npg()+
+  theme_void() +
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank(),
+        plot.title = element_text(hjust = 0.5, color = "#666666"))+
+  xlim(0.5, 1.5)
+
+
+#来一块华夫饼
+type = c('Road injury','Self-harm','CVD',
+         'Cancers','Hepatitis','TB','HIV',
+         'CKD')
+nrows <- 10
+df <- expand.grid(y = 1:nrows, x = 1:nrows)
+df$type <- rep(type,times = c(23,17,10,5,5,12,16,12))
+
+ggplot(df, aes(x = x, y = y, fill = type)) + 
+  geom_tile(color = "black", size = 0.5) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0), trans = 'reverse') +
+  scale_fill_brewer(palette = "Set3") +
+  theme(axis.text = element_blank(),
+        axis.title = element_blank(),
+        axis.ticks = element_blank(),
+        legend.title = element_blank(),
+        legend.position = "right")
+
+#细分再细分--树图
+install.packages('treemapify')
+library(treemapify)
+set.seed(2019)
+diseases <- data.frame(type = rep(c('CVD','Infections','Cancer',
+                                    'Metabolic','Digestive','CNS'),
+                                  times = c(5,5,5,3,4,6)),
+                       diseases = c('Heart attack','Stroke','CHD',
+                                    'Arrhythmia','Heart failure',
+                                    'Hepatitis','Malaria','HIV',
+                                    'TB','Influenza','HCC','CRC',
+                                    'Lung','Gastric','Breast',
+                                    'Diabetes','Hypertention',
+                                    'Mucolipidoses','IBD','Celiac Disease',
+                                    "Crohn's Disease",'Diarrhea',
+                                    'Autism','ADHD','Depression','Meningitis',
+                                    'Migraine','GBM'),
+                       freqs = sample(20:60,28))
+
+ggplot(diseases,aes(area = freqs,fill = type,
+                    label = diseases, subgroup = type))+
+  geom_treemap(color = 'gray20')+
+  geom_treemap_subgroup_border() +
+  geom_treemap_subgroup_text(place = "centre", grow = T, 
+                             alpha = 0.5, colour ="black", 
+                             fontface = "italic", min.size = 0) +
+  geom_treemap_text(colour = "white", place = "topleft", reflow = T)+
+  scale_fill_brewer(palette = 'Set2')
+
+
+#条形图
+##写代码时要注意啦
+df <- tibble(Var1 = rep(c('M','F'),20),
+             Var2 = sample(1:10,40,replace = T))
+
+ggplot(df, aes(x = Var1, weight = Var2))+
+  geom_bar()
+
+ggplot(df, aes(x = Var1, y = Var2))+
+  geom_bar(stat = 'identity')
+
+#最基本的条图
+injuries <- tibble(age = rep(c('Young adults',
+                               'Middle-aged people',
+                               'the elders'),each=5),
+                   type = rep(c('Road injury','Self-harm','CVD',
+                                'Cancers','Infectious Diseases'),3),
+                   counts = c(214,123,69,24,17,
+                              129,110,201,101,45,
+                              56,32,212,189,78))
+injuries <- injuries %>% 
+  mutate(age = factor(age, levels = c('Young adults',
+                                      'Middle-aged people',
+                                      'the elders')))
+injuries <- injuries %>%
+  mutate(type = factor(type,levels = c('CVD','Road injury','Cancers',
+                                       'Self-harm','Infectious Diseases')))
+
+p1 <- ggplot(injuries,aes(age,weight = counts,fill = type))+
+  geom_bar(color = 'black',width = .7,position = 'dodge')+
+  scale_fill_lancet()
+
+p2 <- ggplot(injuries,aes(age,weight = counts,fill = type))+
+  geom_hline(yintercept = seq(50,200,50),color = 'gray')+
+  geom_bar(color = 'black',width = .7,position = 'dodge')+
+  scale_fill_lancet()+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()
+
+plot_grid(p1,p2,ncol=1,labels = c('A','B'))
+
+#条柱的另外两种排列方式
+p1 <- ggplot(injuries,aes(type,weight = counts,fill = age))+
+  geom_hline(yintercept = seq(100,400,100),color = 'gray')+
+  geom_bar(color = 'black',width = .7,position = 'stack')+
+  scale_fill_brewer(palette = 'Accent')+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))
+
+p2 <- ggplot(injuries,aes(type,weight = counts,fill = age))+
+  geom_bar(color = 'black',width = .7,position = 'fill')+
+  scale_fill_brewer(palette = 'Accent')+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))
+
+plot_grid(p1,p2,ncol=1,labels = c('A','B'))
+
+#杂乱无章的条图要不得
+set.seed(2019)
+injuries <- tibble(
+  type = c('Heart attack','Stroke','CHD',
+           'Arrhythmia','Heart failure',
+           'Hepatitis','Malaria','HIV',
+           'TB','Influenza','HCC','CRC',
+           'Lung','Gastric','Breast',
+           'Diabetes','Hypertention',
+           'Mucolipidoses','IBD','Celiac Disease',
+           "Crohn's Disease",'Diarrhea',
+           'Autism','ADHD','Depression','Meningitis',
+           'Migraine','GBM'),
+  counts = sample(20:100,28))
+
+ggplot(injuries,aes(type,weight = counts))+
+  geom_hline(yintercept = seq(20,100,10),color = 'gray')+
+  geom_bar(color = 'black',width = .7,fill = '#00bdaa',size = .3)+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))
+
+#升序或降序条图
+injuries <- injuries %>% mutate(
+  type = factor(type,levels = type[order(counts)]))
+
+p1 <- ggplot(injuries,aes(type,weight = counts))+
+  geom_hline(yintercept = seq(20,90,10),color = 'gray')+
+  geom_bar(color = 'black',width = .7,fill = '#00bdaa',size = .3)+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))
+
+injuries2 <- injuries %>% mutate(
+  type = factor(type,levels = rev(type[order(counts)])))
+# or:
+#injuries2 <- injuries %>% mutate(
+# type = factor(type,levels = type[order(counts,decreasing = T)]))
+
+p2 <- ggplot(injuries2,aes(type,weight = counts))+
+  geom_hline(yintercept = seq(20,90,10),color = 'gray')+
+  geom_bar(color = 'black',width = .7,fill = '#a1dd70',size = .3)+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))
+
+plot_grid(p1, p2, ncol = 1,labels = c('A','B'),align = c('v','h'))
+
+#让条图站起来
+p1 <- ggplot(injuries,aes(type,weight = counts))+
+  geom_bar(color = 'black',width = .7,fill = '#a1dd70',size = .3)+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  coord_flip()
+
+p2 <- ggplot(injuries,aes(type,weight = counts))+
+  geom_bar(color = 'black',width = .7,fill = '#28c3d4',size = .3)+
+  scale_y_continuous(expand = c(0,0),position = 'right')+
+  theme_classic()+
+  coord_flip()+
+  xlab('')+ ylab('')
+
+plot_grid(p1, p2, ncol = 2,labels = c('A','B'),align = c('h'))
+
+
+#上下分明的条图
+set.seed(2019)
+df <- tibble(diseases = c('Heart attack','Stroke','CHD',
+                          'Arrhythmia','Heart failure',
+                          'Hepatitis','Malaria','HIV',
+                          'TB','Influenza','HCC','CRC',
+                          'Lung','Gastric','Breast',
+                          'Diabetes','Hypertention',
+                          'Mucolipidoses','IBD','Celiac Disease',
+                          "Crohn's Disease",'Diarrhea',
+                          'Autism','ADHD','Depression','Meningitis',
+                          'Migraine','GBM'),
+             trends = rnorm(28,0,2))
+df <- df %>% mutate(
+  diseases = factor(diseases,levels = rev(diseases[order(trends)])))
+
+ggplot(df,aes(diseases,weight = trends))+
+  geom_hline(yintercept = seq(-4,3,1),color = 'gray')+
+  geom_bar(color = 'black',width = .6,fill = '#5bd1d7',size = .3)+
+  scale_y_continuous(limits = c(-5,3.5))+
+  theme_classic()+
+  ylab('Temporal trends of diseases')+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))
+
+#条图太挤，换棒棒糖图吧
+ggplot(injuries,aes(y = type,x = counts))+
+  geom_segment(aes(y = type, yend = type,x = 0,xend = counts),
+               color = 'black')+
+  geom_point(color = 'black',fill = '#28c3d4',
+             size = 3,shape = 21)+
+  scale_y_discrete(expand = c(0.02,0.02))+
+  scale_x_continuous(expand = c(0,1),
+                     breaks = seq(20,100,20),
+                     labels = seq(20,100,20))+
+  theme_light()+
+  ylab('')+
+  theme(
+    panel.grid.major.y = element_blank(),
+    panel.border = element_blank(),
+    axis.ticks.y = element_blank()) 
+
+#两组条柱？那不如试试哑铃图咯
+df <- tibble(Age = rep(c('0-19','20-34','35-49','50-64','65+'),2),
+             Sex = rep(c('Male','Female'),each = 5),
+             Values = c(18,21,20,26,29,15,18,15,22,23))
+
+p1 <- ggplot(df,aes(Age,weight = Values, fill = Sex))+
+  geom_hline(yintercept = seq(10,20,10),color = 'gray')+
+  geom_bar(position = 'dodge',width = .6)+
+  scale_y_continuous(expand = c(0,0))+
+  ylab('Values')+
+  theme_classic()+
+  scale_fill_jco()+
+  theme(legend.position = c(.15,.85))
+
+df2 <- df %>% tidyr::spread(key = Sex, value = Values)
+p2 <- ggplot()+
+  geom_segment(data = df2,aes(x = Female, xend = Male, 
+                              y = Age, yend = Age),
+               size = 1.5,color = 'gray')+
+  geom_point(data = df, aes(Values, Age, fill = Sex),
+             shape = 21,size = 3)+
+  labs(x = 'Values')+
+  scale_fill_jco()+
+  theme_light()+
+  theme(legend.position = 'top',
+        panel.grid.minor=element_blank(),
+        panel.grid.major.y=element_blank(),
+        panel.grid.major.x=element_line(),
+        axis.ticks=element_blank(),
+        panel.border=element_blank())
+plot_grid(p1, p2, ncol = 2,labels = c('A','B'),align = c('v','h'))
+
+#人口金字塔
+populations <- tibble(age = rep(c("0-4","5-9","10-14","15-19",
+                                  "20-24","25-29","30-34",
+                                  "35-39","40-44","45-49","50-54",
+                                  "55-59","60-64","65-69","70-74",
+                                  "75-79","80-84",'85+'),2),
+                      sex = rep(c('Male','Female'),each = 18),
+                      pops = c(91646,65397,75560,108622,245368,
+                               278821,196527,153679,153202,248852,
+                               388813,350713,241516,130285,103534,
+                               119681,76644,47576,
+                               85376,62108,72649,107474,238128,269100,
+                               192116,159126,156828,240783,378479,
+                               361806,225168,123183,112859,149189,
+                               105804,78370
+                      ))
+populations <- populations %>% mutate(
+  age = factor(age, levels = c("0-4","5-9","10-14","15-19",
+                               "20-24","25-29","30-34",
+                               "35-39","40-44","45-49","50-54",
+                               "55-59","60-64","65-69","70-74",
+                               "75-79","80-84",'85+')),
+  pops = pops/1e3,
+  pops = ifelse(sex == 'Female',-pops, pops))
+
+library(ggthemes)
+ggplot(populations,aes(x =age,y=pops,fill=sex,width=0.8)) +
+  coord_flip() +
+  geom_bar(data=subset(populations,sex=="Female"),stat = "identity") +
+  geom_bar(data=subset(populations,sex=="Male"), stat = "identity") +
+  scale_y_continuous(breaks = seq(-400,400,length=9),
+                     labels = paste0(as.character
+                                     (c(abs(seq(-400,400,length=9)))), "k"), 
+                     limits = c(-450, 450)) +
+  theme_economist_white(horizontal = FALSE) +
+  scale_fill_economist() + 
+  labs(title="2010",
+       y="Population",x="Age") + 
+  guides(fill=guide_legend(reverse = TRUE))+
+  theme(
+    legend.position =c(0.8,0.9),
+    legend.title = element_blank(),
+    plot.title = element_text(size=20),
+    plot.caption = element_text(size=12,hjust=0)
+  )
+
+#条柱怎么少得了error bar
+
+df <- readxl::read_excel('~/desktop/JLX/graphs-data/code56data.xlsx')
+
+df <- df %>% mutate(
+  `Age group` = factor(`Age group`,
+                       levels = c('0-<1','1-<2','2-<5','Total')))
+
+###找准位置是关键
+position <- position_dodge(width = .7)
+ggplot(df, aes(Year, weight = Prevalence, fill = `Age group`))+
+  geom_bar(width = .7,color = 'gray20',position = position,size = .3)+
+  geom_errorbar(aes(ymin = lo,ymax = up),
+                color = 'black',width = .2, size = .5,
+                position = position)+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  labs(y = 'Prevalence (%)')+
+  scale_fill_lancet(name = 'Age group')+
+  scale_x_continuous(breaks = 2010:2017,labels = 2010:2017,
+                     expand = c(0.02,0.02))+
+  theme(legend.key.size = unit(.45,'cm'),
+        legend.key.width = unit(.45,'cm'))
+
+#点线图
+position <- position_dodge(width = .6)
+
+p1 <- ggplot(df, aes(x = Year, y = Prevalence, fill = `Age group`))+
+  geom_errorbar(aes(ymin = lo,ymax = up),
+                color = 'black',width = .2, size = .5,
+                position = position)+
+  geom_point(color = 'gray20',position = position,size = 3,shape = 21)+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  labs(y = 'Prevalence (%)')+
+  scale_fill_lancet(name = 'Age group')+
+  scale_x_continuous(breaks = 2010:2017,labels = 2010:2017,
+                     expand = c(0.02,0.02))+
+  theme(legend.key.size = unit(.45,'cm'),
+        legend.key.width = unit(.45,'cm'),
+        legend.position = c(.9,.8))
+
+p2 <- ggplot(df, aes(x = Year, y = Prevalence, fill = `Age group`))+
+  geom_errorbar(aes(ymin = lo,ymax = up),
+                color = 'black',width = .2, size = .5,
+                position = position)+
+  geom_line(aes(color = `Age group`),position = position)+
+  geom_point(color = 'gray20',position = position,
+             size = 3,shape = 21)+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  labs(y = 'Prevalence (%)')+
+  scale_fill_lancet(name = 'Age group')+
+  scale_color_lancet()+
+  scale_x_continuous(breaks = 2010:2017,labels = 2010:2017,
+                     expand = c(0.02,0.02))+
+  guides(color = 'none')+
+  theme(legend.key.size = unit(.45,'cm'),
+        legend.key.width = unit(.45,'cm'),
+        legend.position = c(.9,.8))
+
+plot_grid(p1,p2,ncol= 1,labels = c('A','B'),align = 'v')
+
+#韦恩图
+install.packages('VennDiagram')
+library(VennDiagram)
+set.seed(2019)
+SNP_pop_1=paste(rep("SNP_" , 200) , 
+                sample(c(1:1000) , 200 , replace=F) , sep="")
+SNP_pop_2=paste(rep("SNP_" , 200) , 
+                sample(c(1:1000) , 200 , replace=F) , sep="")
+SNP_pop_3=paste(rep("SNP_" , 200) , 
+                sample(c(1:1000) , 200 , replace=F) , sep="")
+SNP_pop_4=paste(rep("SNP_" , 200) , 
+                sample(c(1:1000) ,200 , replace=F) , sep="")
+
+venn.diagram(
+  x = list(SNP_pop_1 , SNP_pop_2 , SNP_pop_3, SNP_pop_4),
+  category.names = c("SNP pop 1" , "SNP pop 2 " , "SNP pop 3","SNP_pop_4"),
+  filename = '~/desktop/JLX/venn.png',
+  output = T ,
+  lty = 'blank',
+  fill = c('#07689f','#a2d5f2','#ff7e67','#10ddc2')
+)
+
+#upset图
+install.packages('ggupset')
+library(ggupset)
+
+tidy_movies %>%
+  distinct(title, year, length, .keep_all=TRUE) %>%
+  ggplot(aes(x=Genres)) +
+  geom_bar() +
+  scale_y_continuous(expand = c(0,0))+
+  scale_x_upset(order_by = "degree")
+
+#热图
+#其实就是方格图
+set.seed(2019)
+x = 1:50
+y = 1:10
+xy = expand.grid(x,y)
+value <- rnorm(500,3,1)
+gene_expression <- 
+  tibble(x = xy$Var1,y = xy$Var2,
+        values = ifelse(value<0,0,value),
+        gene = rep(paste0('gene',1:10),50),
+        samples = rep(paste0('Sample',1:50),each = 10))
+
+ggplot(gene_expression, aes(y, x)) + 
+  geom_tile(aes(fill = values), colour = "white") + 
+  scale_fill_gradient(low = "white", high = "steelblue")+
+  theme_grey(base_size = 12) + labs(x = "", y = "") + 
+  scale_x_continuous(expand = c(0,0),labels = unique(gene_expression$gene),
+                     breaks=1:10) + 
+  scale_y_continuous(expand = c(0,0),labels= unique(gene_expression$samples),
+                     breaks=1:50)+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))
+
+#传统热图
+install.packages('pheatmap')
+library(pheatmap)
+mtcars2 <- mtcars %>% select(mpg,disp,hp,drat,wt,qsec)
+data=as.matrix(mtcars2)
+heatmap(data, scale="column", col = heat.colors(256))
+pheatmap(data,scale = 'column')
+
+#热图实例
+set.seed(2019)
+df <- tibble(cancers = rep(c('Bladder','Bone','CNS','Breast','Cervix uteri',
+                             'CRC','Lung','Liver','Prostate','Kidney',
+                             'Eye','Skin','Thyroid','HLM','GBM'),3),
+             regions = rep(c('Region A','Region B','Region C'),each = 15),
+             incidence = sample(10:100,45))
+
+df <- df %>% group_by(regions) %>% mutate(ranks = 16-rank(incidence))
+
+ggplot(df, aes(cancers, regions,fill = incidence))+
+  geom_tile(color = 'gray20',size = .4)+
+  theme_gray()+
+  scale_x_discrete(expand = c(0,0)) + 
+  scale_y_discrete(expand = c(0,0))+
+  theme(axis.text.x = element_text(angle = 45,hjust=1))+ 
+  labs(x = "", y = "") + 
+  geom_text(aes(label = ranks))+
+  scale_fill_gradient(low = 'white',high = 'firebrick2')
+
+#打个标签吧
+##火山图就是这么来的
+set.seed(2019)
+df <- tibble(gene = paste0('gene',1:5000),
+             expressions = c(rnorm(4995,3,0.5),
+                             5.5,6,7,8,9),
+             position = sample(1:100,5000,replace = T))
+
+df <- df %>% mutate(expressions = ifelse(expressions<0,0.01,expressions),
+                    level = ifelse(expressions>5,'High','Low'))
+
+install.packages('ggrepel')
+library(ggrepel)
+
+ggplot(df, aes(x = position, y= expressions,
+               fill = level,size = level))+
+  geom_hline(yintercept = 5,color = 'gray',linetype =2)+
+  geom_jitter(shape = 21, color = 'black')+
+  scale_fill_manual(values = c('blue','gray'))+
+  scale_size_manual(values = c(4,2))+
+  geom_text_repel(data = df[df$expressions>=5,],
+                  aes(x = position, y= expressions,label = gene))+
+  theme_classic()+
+  theme(legend.position = 'none')
+
+
+#标个统计信息吧
+ggplot(mtcars, aes(x = wt, y = mpg)) + 
+  geom_point(shape = 21, color = 'black',fill = '#ff8a5c',size=4)+
+  geom_smooth(method = lm)+
+  annotate("text", x = 5, y = 32, label = "italic(R) ^ 2 == 0.75",
+           parse = TRUE,size = 6, color = 'blue')+
+  theme_bw()
+
+#来点直接的
+install.packages("ggsignif")
+library(ggsignif)
+
+set.seed(2019)
+df <- tibble(group = rep(paste('Group',LETTERS[1:4]),times = c(10,8,10,13)),
+             values = c(rnorm(10,15,2),rnorm(8,14,2),
+                        rnorm(10,8,1),rnorm(13,5,2)))
+
+p1 <- ggplot(df,aes(group,values))+
+  geom_boxplot()+
+  geom_jitter(size = 2,shape = 21,fill = 'gray40')+
+  geom_signif(comparisons = list(c('Group A','Group B'),
+                                 c('Group A','Group C'),
+                                 c('Group A','Group D')),
+              map_signif_level = FALSE, textsize=6,
+              test = t.test,
+              step_increase = 0.2) +
+  ylim(NA, 25)+
+  theme_classic()
+
+p2 <- ggplot(df,aes(group,values))+
+  geom_boxplot()+
+  geom_jitter(size = 2,shape = 21,fill = 'gray40')+
+  geom_signif(comparisons = list(c('Group A','Group B'),
+                                 c('Group A','Group C'),
+                                 c('Group A','Group D')),
+              map_signif_level = TRUE, textsize=6,
+              step_increase = 0.2) +
+  ylim(NA, 25)+
+  theme_classic()
+
+plot_grid(p1,p2,ncol=2,align = 'h',labels = c('A','B'))
+
+#来点高级的
+install.packages("ggstatsplot")
+library(ggstatsplot)
+
+p1 <- ggbetweenstats(
+  data = iris,
+  x = Species,
+  y = Sepal.Length,
+  messages = T,
+  type = 'p') + 
+  scale_y_continuous(breaks = seq(3, 8, by = 1))+
+  theme_classic()+
+  theme(legend.position = c(.13,.8))
+
+p2 <- ggbetweenstats(
+  data = iris,
+  plot.type = 'box',
+  x = Species,
+  y = Sepal.Length,
+  mean.plotting = F,
+  messages = T,
+  type = 'p',
+  palette = 'Set1') + 
+  scale_y_continuous(breaks = seq(3, 8, by = 1))+
+  theme_classic()+
+  theme(legend.position = c(.13,.8))
+
+#plot_grid(p1,p2,ncol=1,align = 'h',labels = c('A','B'))
+
+#添加统计信息标识符
+ggbetweenstats(
+  data = iris,
+  plot.type = 'box',
+  x = Species,
+  y = Sepal.Length,
+  pairwise.comparisons = T,
+  mean.plotting = F,
+  messages = T,
+  type = 'p',
+  palette = 'Set1') + 
+  scale_y_continuous(breaks = seq(3, 8, by = 1))+
+  theme_classic()+
+  theme(legend.position = c(.11,.8))
+
+#配对检验与配对坡度图
+set.seed(2019)
+df <- tibble(values = c(rnorm(10, 10, 2),
+                        rnorm(10, 15, 3)),
+             group = factor(rep(paste('Group',LETTERS[1:2]),each = 10)))
+
+ggwithinstats(
+  data = df,
+  x = group,y= values,
+  pairwise.comparisons = T,
+  pairwise.display = 's',
+  pairwise.annotation = 'p',
+  type = 'p',
+  mean.size = 4,
+  mean.color = 'blue',
+  package = 'ggsci',
+  palette = 'lanonc_lancet')
+
+#------------------------------------------------------
+#seqlogo与进化树
+#seqlogo
+install.packages('ggseqlogo')
+library(ggseqlogo)
+
+data(ggseqlogo_sample)
+ggseqlogo( seqs_dna$MA0001.1 )
+
+#多位点seqlogo
+install.packages('seqinr')
+library(seqinr)
+seqs <- read.fasta('~/desktop/JLX/graphs-data/Epitope.fas')
+seqs_string <- vector(mode = 'character')
+for(i in 1:length(seqs)){
+  seqs_string[i] <- toupper(c2s(seqs[[i]])) 
+}
+
+ggseqlogo(seqs_string)
+
+
+#单位点seqlogo
+set.seed(2019)
+seqs <- tibble(bases = sample(c('A','G','T','C'),1200,rep = T),
+               genotype = rep(c('GT1','GT2','GT3',
+                                'GT4','GT5','GT6'),
+                              each = 200))
+
+seq_mat <- table(seqs$bases,seqs$genotype)
+p1 <- ggseqlogo(seq_mat) + 
+  scale_x_continuous(breaks = 1:6,
+                     labels = unique(seqs$genotype))
+
+p2 <- ggseqlogo(seq_mat,method = 'probability') + 
+  scale_x_continuous(breaks = 1:6,
+                     labels = unique(seqs$genotype))
+
+plot_grid(p1,p2,ncol = 2,labels = c('A','B'),align = 'h')
+
+#seqlogo的注释
+ggplot()+
+  annotate("rect", xmin = 0.5, xmax = 3.5, ymin = -0.05, 
+           ymax = 1.9, 
+           alpha=0.1, col="black", fill="yellow")+
+  geom_logo(seqs_dna$MA0001.1, stack_width = 0.9,
+            col_scheme = 'nucleotide2')+
+  annotate("segment", x=4, xend = 8, y=1.2, yend = 1.2, size=2)+
+  annotate("text", x=6, y=1.3, label="Text annotation")+
+  theme_logo()
+
+#进化树
+BiocManager::install('ggtree')
+library(ggtree)
+library(tidytree)
+beast_file <- system.file("examples/MCC_FluA_H3.tree", 
+                          package="ggtree")
+beast_tree <- read.beast(beast_file)
+p1 <- ggtree(beast_tree, mrsd="2013-01-01") + 
+  theme_tree2()
+
+p2 <- ggtree(beast_tree, mrsd="2013-01-01") + 
+  theme_tree2()+
+  geom_nodepoint(aes(size = posterior),color = 'deeppink',
+                 alpha=.6)+
+  theme(legend.position = c(.15,.8))
+
+beast_tree_data <- as_tibble(beast_tree)
+set.seed(2019)
+infos <- tibble(locations = sample(c('China','Japan','USA','UK',
+                                     'Brazil'),76,rep = T),
+                label = na.omit(unique(beast_tree_data$label)))
+
+beast_tree_data2 <- full_join(beast_tree_data,infos,by = 'label')
+beast_tree2 <- as.treedata(beast_tree_data2)
+p3 <- ggtree(beast_tree2, mrsd="2013-01-01") + 
+  theme_tree2()+
+  geom_tippoint(aes(color = locations),size = 2)+
+  scale_color_lancet()+
+  theme(legend.position = c(.15,.8))
+
+plot_grid(p1,p2,p3,ncol = 3,labels = c('A','B','C'))
+
+
+#在进化树旁边叠加其它信息
+beast_file <- system.file("examples/MCC_FluA_H3.tree", 
+                          package="ggtree")
+beast_tree <- read.beast(beast_file)
+
+genotype_file <- system.file("examples/Genotype.txt", 
+                             package="ggtree")
+genotype <- read.table(genotype_file, sep="\t", 
+                       stringsAsFactor=F)
+colnames(genotype) <- sub("\\.$", "", colnames(genotype))
+p <- ggtree(beast_tree, mrsd="2013-01-01") + 
+  geom_treescale(x=2008, y=1, offset=2) + 
+  geom_tiplab(size=2)
+gheatmap(p, genotype, offset=5, width=0.5, font.size=3, 
+         colnames_angle=-45, hjust=0) +
+  scale_fill_lancet(breaks=c("HuH3N2", "pdm", "trig"), 
+                    name="genotype")
+
+
+#code 79
+nwk <- system.file("extdata", "sample.nwk", package="treeio")
+tree <- read.tree(nwk)
+circ <- ggtree(tree, layout = "circular")
+df <- data.frame(first=c("a", "b", "a", "c", "d", "d", 
+                         "a", "b", "e", "e", "f", "c", "f"),
+                 second= c("z", "z", "z", "z", "y", "y", 
+                           "y", "y", "x", "x", "x", "a", "a"))
+rownames(df) <- tree$tip.label
+
+
+
+gheatmap(circ, df, offset=.8, width=.2,
+               colnames_angle=95, colnames_offset_y = .25) +
+  scale_fill_viridis_d(option="D", name="discrete\nvalue")
+
+
+#采样地图
+worldData <- map_data('world')
+
+set.seed(2019)
+locations <- tibble(long = c(116.2,-82.22,2.20,23.46,77.13,
+                             32.35,-77.02,149.08),
+                    lat = c(39.55,23.08,48.5,37.58,28.37,
+                            15.31,39.91,-35.15),
+                    size = sample(50:100,8))
+
+ggplot() + geom_polygon(data=worldData, 
+                        aes(x=long, y=lat, group = group),
+                        colour="black",size = .2,fill = 'white') + 
+  theme_void()+labs(x="", y="")+
+  geom_point(data = locations,aes(x = long, y = lat, size = size),
+             color = 'gray30',shape = 21, fill = '#ef4b4b')+
+  scale_size_continuous(range = c(3,5))
+
+#展示单个变量的大小
+country_asr <- read.csv('~/desktop/JLX/graphs-data/code85data.csv')
+country_asr$location <- as.character(country_asr$location) 
+country_asr$location[country_asr$location == 'United States'] = 'USA'
+country_asr$location[country_asr$location == 'Russian Federation'] = 'Russia'
+country_asr$location[country_asr$location == 'The Gambia'] = 'Gambia'
+country_asr$location[country_asr$location == 'United Kingdom'] = 'UK'
+country_asr$location[country_asr$location == 'The Bahamas'] = 'Bahamas'
+country_asr$location[country_asr$location == 'Congo'] = 'Republic of Congo'
+country_asr$location[country_asr$location == "Cote d'Ivoire"] = 'Ivory Coast'
+worldData <- map_data('world')
+total <- full_join(worldData,country_asr,by = c('region'='location'))
+
+p <- ggplot()
+p + geom_polygon(data=total, 
+                aes(x=long, y=lat, group = group,fill=val),
+                       colour="black",size = .2) + 
+  scale_fill_gradient(low = "white", high = "red")+
+  theme_void()+labs(x="", y="")+
+  guides(fill = guide_colorbar(title='Incidence'))+
+  theme(legend.position = 'right')
+
+total <- total %>% mutate(val2 = cut(val, breaks = c(0,5,7.5,10,15,20,30,110),
+                                     labels = c("0~5.0","5.1~7.5","7.6~10.0",
+                                                "10.1~15.0","15.1~20.0",
+                                                "20.1~30.0",">30.1"),
+                                     include.lowest = T,right = T))
+
+p + geom_polygon(data=total, 
+                       aes(x=long, y=lat, group = group,fill=val2),
+                       colour="black",size = .2) + 
+  scale_fill_manual(values = c('#fee5d9','#fcbba1','#fc9272','#fb6a4a',
+                               '#ef3b2c','#cb181d','#99000d'))+
+  theme_void()+labs(x="", y="")+
+  guides(fill = guide_legend(title='Incidence'))+
+  theme(legend.position = 'right')
+
+#去除南极洲
+total2 <- total %>% filter(val2!=0)
+p + geom_polygon(data=total2, 
+                 aes(x=long, y=lat, group = group,fill=val2),
+                 colour="black",size = .2) + 
+  scale_fill_manual(values = c('#fee5d9','#fcbba1','#fc9272','#fb6a4a',
+                               '#ef3b2c','#cb181d','#99000d'))+
+  theme_void()+labs(x="", y="")+
+  guides(fill = guide_legend(title='Incidence'))+
+  theme(legend.position = 'right')
+
+#展示变量的变化趋势
+set.seed(2019)
+apcs <- tibble(apc = c(rnorm(nrow(country_asr)-10,0,2),rep(0,10)),
+               location = unique(country_asr$location))
+worldData <- map_data('world')
+total <- full_join(worldData,apcs,by = c('region'='location'))
+
+p <- ggplot()
+p + geom_polygon(data=total, 
+                       aes(x=long, y=lat, group = group,fill=apc),
+                       colour="black",size = .2) + 
+  scale_fill_gradient2(low = "forestgreen",mid = 'white', high = "red",
+                       midpoint = 0)+
+  theme_void()+labs(x="", y="")+
+  guides(fill = guide_colorbar(title='APC'))+
+  theme(legend.position = 'right')
+
+total <- total %>% mutate(apc2 = cut(apc, breaks = c(-5.5,-2.5,-0.0001,0.0001,
+                                                     2.5,5.3),
+                                     labels = c("-5.50~-2.50",
+                                                "-2.49~0",0,
+                                                "0~2.50",
+                                                "2.51~5.30"),
+                                     include.lowest = T,right = T))
+p + geom_polygon(data=total, 
+                       aes(x=long, y=lat, group = group,fill=apc2),
+                       colour="black",size = .2) + 
+  scale_fill_manual(values = c('#238b45','#a1d99b','gray90',
+                               '#fcbba1','#fb6a4a'))+
+  theme_void()+labs(x="", y="")+
+  guides(fill = guide_legend(title='APC'))+
+  theme(legend.position = 'right')
+
+
+#我爱我的祖国
+install.packages('rgdal')
+library(rgdal)
+china <- readOGR('~/desktop/JLX/graphs-data/ChinaMap/bou2_4m/bou2_4p.shp')
+china2 <- fortify(china)
+head(china2)
+
+mymap <- china@data
+mymap$id <- 0:924
+
+china.map2 <- plyr::join(mymap,china2)
+
+mydata <- read.csv('~/desktop/JLX/graphs-data/code87data.csv')
+
+datamap <- full_join(china.map2,mydata)
+p1 <- ggplot() + geom_polygon(data=datamap, 
+                              aes(x=long, y=lat, group = group,fill=HBOR),
+                              colour="black",size = .2) + 
+  scale_fill_gradient2(low = "green",mid = 'white', high = "red",
+                       midpoint = 1)+
+  theme_void()+labs(x="", y="")+
+  guides(fill = guide_colorbar(title='HBV OR'))+
+  theme(legend.position = c(0.15,0.2))
+#code 87 continued
+df_China <- datamap
+Width<-9
+Height<-9
+long_Start<-124
+lat_Start<-16
+df_Nanhai<-df_China[df_China$long>106.55 & df_China$long<123.58,]
+df_Nanhai<-df_Nanhai[df_Nanhai$lat>4.61 & df_Nanhai$lat<25.45,]
+min_long<-min(df_Nanhai$long, na.rm = TRUE)
+min_lat<-min(df_Nanhai$lat, na.rm = TRUE)
+max_long<-max(df_Nanhai$long, na.rm = TRUE)
+max_lat<-max(df_Nanhai$lat, na.rm = TRUE)
+df_Nanhai$long<-(df_Nanhai$long-min_long)/(max_long-min_long)*Width+long_Start
+df_Nanhai$lat<-(df_Nanhai$lat-min_lat)/(max_lat-min_lat)*Height+lat_Start
+df_Nanhai$class<-rep("NanHai",nrow(df_Nanhai))
+df_China$class<-rep("Mainland",nrow(df_China))
+df_China<-rbind(df_China,df_Nanhai)
+df_NanHaiLine <- read.csv("D:\\book draft\\SCI论文图表之道\\ChinaMap\\中国南海九段线.csv")  
+colnames(df_NanHaiLine)<-c("long","lat","ID")
+df_NanHaiLine$long<-(df_NanHaiLine$long-min_long)/(max_long-min_long)*Width+long_Start
+df_NanHaiLine$lat<-(df_NanHaiLine$lat-min_lat)/(max_lat-min_lat)*Height+lat_Start
+p2 <- ggplot()+
+  geom_polygon(data=df_China,aes(x=long,y=lat,group=interaction(class,group),
+                                 fill=HBOR),colour="black",size=0.25)+ 
+  geom_rect(aes(xmin=long_Start, xmax=long_Start+Width+0.8,
+                ymin=lat_Start-0.6, ymax=lat_Start+Height),fill=NA, 
+            colour="black",size=0.25)+
+  geom_line(data=df_NanHaiLine, aes(x=long, y=lat, group=ID), 
+            colour="black", size=1)+  
+  scale_fill_gradient2(low = "green",mid = 'white', high = "red",
+                       midpoint = 1)+
+  coord_cartesian()+
+  ylim(15,55)+
+  theme_void()+labs(x="", y="")+
+  theme(
+    legend.position=c(0.15,0.2),
+    legend.background = element_blank())
+plot_grid(p1,p2,ncol=2,align = 'h',labels = c('A','B'))
+
+#code 88
+library(rgdal)
+china <- readOGR('D:\\book draft\\SCI论文图表之道\\ChinaMap\\bou2_4m\\bou2_4p.shp')
+china2 <- fortify(china)
+mymap <- china@data
+mymap$id <- 0:924
+china.map2 <- plyr::join(mymap,china2)
+mydata <- read.csv('D:\\book draft\\SCI论文图表之道\\code83data.csv')
+set.seed(2019)
+mydata <- mydata %>% mutate(A = abs(rnorm(31,10,5)),
+                            B = sample(1000:10000,31),
+                            C = abs(rnorm(31,5,2)),
+                            long2 = c(116.39,117.2,114.5,112.6,111.7,123.4,125.3,
+                                      126.6,121.5,118.8,120.2,117.3,119.3,115.9,
+                                      117.0,113.6,114.3,113,113.3,108.3,110.3,
+                                      106.6,104.1,106.7,102.7,91.1,108.9,103.8,
+                                      101.8,106.2,87.6),
+                            lat2 = c(39.9,39.1,38,37.9,40.8,41.8,43.8,45.8,31.2,
+                                     32.1,30.2,31.9,26,28.7,36.7,34.8,30.6,28.2,
+                                     23.1,22.8,20,29.6,30.6,26.6,24.9,29.7,34.3,
+                                     36.1,36.6,38.5,43.8))
+
+datamap <- full_join(china.map2,mydata)
+
+ggplot() + 
+  geom_polygon(data=datamap,aes(x=long, y=lat, group = group,fill=A),
+               colour="gray",size = .2)+ 
+  scale_fill_gradient2(name = 'A',low = "pink", high = "red")+
+  geom_point(data = mydata,aes(x=long2, y=lat2,size = B, color = C),
+             alpha = .8, shape = 16)+
+  scale_color_gradient(name  ='C',low = 'skyblue',high = 'blue')+
+  theme_void()+
+  guides(size = guide_legend(order = 2),
+         fill = guide_colorbar(order = 1),
+         color = guide_colorbar(order = 3))
+
+#code 89
+library(rgdal)
+china <- readOGR('D:\\book draft\\SCI论文图表之道\\ChinaMap\\bou2_4m\\bou2_4p.shp')
+china2 <- fortify(china)
+mymap <- china@data
+mymap$id <- 0:924
+china.map2 <- plyr::join(mymap,china2)
+mydata <- read.csv('D:\\book draft\\SCI论文图表之道\\code83data.csv')
+set.seed(2019)
+mydata <- mydata %>% mutate(A = sample(1000:10000,31),
+                            B = sample(1000:10000,31),
+                            C = sample(1000:10000,31),
+                            long2 = c(116.39,117.2,114.5,112.6,111.7,123.4,125.3,
+                                      126.6,121.5,118.8,120.2,117.3,119.3,115.9,
+                                      117.0,113.6,114.3,113,113.3,108.3,110.3,
+                                      106.6,104.1,106.7,102.7,91.1,108.9,103.8,
+                                      101.8,106.2,87.6),
+                            lat2 = c(39.9,39.1,38,37.9,40.8,41.8,43.8,45.8,31.2,
+                                     32.1,30.2,31.9,26,28.7,36.7,34.8,30.6,28.2,
+                                     23.1,22.8,20,29.6,30.6,26.6,24.9,29.7,34.3,
+                                     36.1,36.6,38.5,43.8),
+                            D = runif(31,1,2))
+datamap <- full_join(china.map2,mydata)
+library(scatterpie)
+
+ggplot() + 
+  geom_polygon(data=datamap,aes(x=long, y=lat, group = group),
+               fill = 'white',colour="black",size = .2)+ 
+  geom_scatterpie(data = mydata,aes(x=long2,y=lat2,group = NAME, r=D),
+                  cols = c('A','B','C'),color = 'black',alpha = .8)+
+  scale_fill_manual(values = c('#7fc97f','#beaed4','#fdc086'))+
+  geom_scatterpie_legend(mydata$D,x = 80,y = 20, n = 4, 
+                         labeller = function(x)x*1e3)+
+  theme_void()+
+  theme(legend.position = c(.9,.5))
+
+#就是要你好看
+library(ggsci)
+set.seed(2019)
+dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_aaas()+
+  theme_classic()+
+  labs(title = 'AAAS',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_lancet()+
+  theme_classic()+
+  labs(title = 'LANCET',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_npg()+
+  theme_classic()+
+  labs(title = 'NPG',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_jama()+
+  theme_classic()+
+  labs(title = 'JAMA',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_jco()+
+  theme_classic()+
+  labs(title = 'JCO',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_nejm()+
+  theme_classic()+
+  labs(title = 'NEJM',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_d3()+
+  theme_classic()+
+  labs(title = 'D3',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_ucscgb()+
+  theme_classic()+
+  labs(title = 'UCSCGB',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+#RColorBrewer配色方案
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_brewer(palette = 'Set1')+
+  theme_classic()+
+  labs(title = 'RCB-Set1',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_brewer(palette = 'Set2')+
+  theme_classic()+
+  labs(title = 'RCB-Set2',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_brewer(palette = 'Set3')+
+  theme_classic()+
+  labs(title = 'RCB-Set3',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_brewer(palette = 'Accent')+
+  theme_classic()+
+  labs(title = 'RCB-Accent',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_brewer(palette = 'Pastel1')+
+  theme_classic()+
+  labs(title = 'RCB-Pastel1',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_brewer(palette = 'Pastel2')+
+  theme_classic()+
+  labs(title = 'RCB-Pastel2',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+#paletteer配色
+devtools::install_github("EmilHvitfeldt/paletteer")
+library(paletteer)
+
+View(palettes_d_names)
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_paletteer_d(package = 'awtools',
+                         palette = 'mpalette')+
+  theme_classic()+
+  labs(title = 'awtools-mpalette',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_paletteer_d(package = 'ggthemes',
+                         palette = 'Tableau 20')+
+  theme_classic()+
+  labs(title = 'ggthemes-Tableau 20',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_paletteer_d(package = 'jcolors',
+                         palette = 'pal2')+
+  theme_classic()+
+  labs(title = 'jcolors-pal2',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_paletteer_d(package = 'LaCroixColoR',palette = 'PassionFruit')+
+  theme_classic()+
+  labs(title = 'LaCroxColoR-PassionFruit',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_paletteer_d(package = 'NineteenEightyR',palette = 'miami2')+
+  theme_classic()+
+  labs(title = 'NineteenEightyR-miami2',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_paletteer_d(package = 'rcartocolor',palette = 'Temps')+
+  theme_classic()+
+  labs(title = 'rcartocolor-Temps',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+
+#谁都不服，那就自己来
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_manual(values = c('#a6cee3','#1f78b4',
+                               '#b2df8a','#33a02c','#fb9a99'))+
+  theme_classic()+
+  labs(title = 'Customized palette',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA),
+        plot.title = element_text(hjust = 0.5))
+
+#连续色
+library(scales)
+
+#单色
+sequential <- c('#f7fcfd','#e5f5f9','#ccece6','#99d8c9','#66c2a4',
+                '#41ae76','#238b45','#006d2c','#00441b')
+show_col(sequential)
+
+#双色
+diverging <- c('#d73027', '#f46d43','#fdae61','#fee08b','#ffffbf',
+               '#d9ef8b','#a6d96a','#66bd63','#1a9850')
+show_col(diverging)
+
+
+#选择合适的主题风格
+set.seed(2019)
+dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_manual(name = '',
+                    values = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99'))+
+  labs(title = 'default theme',x='',y='')+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA,color = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_manual(name = '',
+                    values = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99'))+
+  labs(title = 'bw theme',x='',y='')+
+  theme_bw()+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA,color = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_manual(name = '',
+                    values = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99'))+
+  labs(title = 'light theme',x='',y='')+
+  theme_light()+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA,color = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_manual(name = '',
+                    values = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99'))+
+  labs(title = 'classic theme',x='',y='')+
+  theme_classic()+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA,color = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_manual(name = '',
+                    values = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99'))+
+  labs(title = 'minimal theme',x='',y='')+
+  theme_minimal()+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA,color = NA),
+        plot.title = element_text(hjust = 0.5))
+
+ggplot(dsamp,aes(carat, price, fill = cut))+
+  geom_point(shape = 21, color = 'black', size = 3)+
+  scale_fill_manual(name = '',
+                    values = c('#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99'))+
+  labs(title = 'test theme',x='',y='')+
+  theme_test()+
+  theme(legend.position = c(.15,.8),
+        legend.background = element_rect(fill = NA,color = NA),
+        plot.title = element_text(hjust = 0.5))
+
+
+#背景网格修饰
+ggplot(dsamp,aes(cut, weight = price, fill = color))+
+  geom_bar(width = 0.8, position = 'dodge', color = 'gray40',size = .5)+
+  scale_fill_npg()+
+  scale_y_continuous(expand = c(0,0),limits = c(0,5e5))+
+  theme_bw()+
+  theme(legend.position = c(.12,.7),
+        legend.background = element_rect(fill = NA,color = NA))
+
+ggplot(dsamp,aes(cut, weight = price, fill = color))+
+  geom_bar(width = 0.8, position = 'dodge', color = 'gray40',size = .5)+
+  scale_fill_npg()+
+  scale_y_continuous(expand = c(0,0),limits = c(0,5e5))+
+  theme_bw()+
+  theme(legend.position = c(.12,.7),
+        legend.background = element_rect(fill = NA,color = NA),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank())
+
+ggplot(dsamp,aes(cut, weight = price, fill = color))+
+  geom_hline(yintercept = seq(1e5,4e5,1e5),color = 'gray')+
+  geom_bar(width = 0.8, position = 'dodge', color = 'gray40',size = .5)+
+  scale_fill_npg()+
+  scale_y_continuous(expand = c(0,0),limits = c(0,5e5))+
+  theme_classic()+
+  theme(legend.position = c(.12,.7),
+        legend.background = element_rect(fill = NA,color = NA))
+
+ggplot(dsamp,aes(cut, weight = price, fill = color))+
+  geom_bar(width = 0.8, position = 'dodge', color = 'gray40',size = .5)+
+  scale_fill_npg()+
+  scale_y_continuous(expand = c(0,0),limits = c(0,5e5))+
+  theme_classic()+
+  theme(legend.position = c(.12,.7),
+        axis.line = element_blank(),
+        legend.background = element_rect(fill = NA,color = NA),
+        panel.grid.major.y = element_line(color = 'gray'))
+
+#图例的位置
+set.seed(2019)
+id <- 1:10
+df <- tibble(x = rep(id,2),
+             y = c(id*1.8+rnorm(10,0,1),
+                   x=id*3+rnorm(10,0,1)),
+             group = rep(c('Group A','Group B'),each = 10))
+
+ggplot(df, aes(x,y,fill = group,group = group))+
+  geom_line()+
+  geom_point(shape = 21, color = 'gray40', size = 3)+
+  theme_classic()
+
+ggplot(df, aes(x,y,fill = group,group = group))+
+  geom_line()+
+  geom_point(shape = 21, color = 'gray40', size = 3)+
+  theme_classic()+
+  theme(legend.position = c(.15,.85))
+
+ggplot(df, aes(x,y,fill = group,group = group))+
+  geom_line()+
+  geom_point(shape = 21, color = 'gray40', size = 3)+
+  theme_classic()+
+  theme(legend.position = 'top')+
+  scale_fill_jco(name = '')+
+  guides(fill = guide_legend(ncol = 2))
+
+ggplot(df, aes(x,y,fill = group,group = group))+
+  geom_line()+
+  geom_point(shape = 21, color = 'gray40', size = 3)+
+  theme_classic()+
+  theme(legend.position = c(.15,.85))+
+  scale_fill_jco(name = '')
+
+#不要让图例喧宾夺主
+ggplot(dsamp,aes(cut, weight = price, fill = color))+
+  geom_hline(yintercept = seq(1e5,4e5,1e5),color = 'gray')+
+  geom_bar(width = 0.8, position = 'dodge', color = 'gray40',size = .5)+
+  scale_fill_npg()+
+  scale_y_continuous(expand = c(0,0),limits = c(0,5e5))+
+  theme_classic()+
+  theme(legend.position = c(.12,.7),
+        legend.background = element_rect(fill = NA,color = NA))
+
+ggplot(dsamp,aes(cut, weight = price, fill = color))+
+  geom_hline(yintercept = seq(1e5,4e5,1e5),color = 'gray')+
+  geom_bar(width = 0.8, position = 'dodge', color = 'gray40',size = .5)+
+  scale_fill_npg()+
+  scale_y_continuous(expand = c(0,0),limits = c(0,5e5))+
+  theme_classic()+
+  theme(legend.position = c(.12,.7),
+        legend.background = element_rect(fill = NA,color = NA),
+        legend.key.height = unit(.4,'cm'),
+        legend.key.width = unit(.4,'cm'))
+
+
+#不要让图例太复杂
+df <- readxl::read_excel('~/desktop/JLX/graphs-data/code56data.xlsx')
+
+df <- df %>% mutate(
+  `Age group` = factor(`Age group`,
+                       levels = c('0-<1','1-<2','2-<5','Total')))
+
+position <- position_dodge(width = .7)
+ggplot(df, aes(x= Year, y = Prevalence, color = `Age group`,
+                     shape = `Age group`))+
+  geom_errorbar(aes(ymin = lo,ymax = up),color = 'black',width = .2, size = .5,
+                position = position)+
+  scale_y_continuous(expand = c(0,0))+
+  geom_point(size = 3,position = position)+
+  theme_classic()+
+  labs(y = 'Prevalence (%)')+
+  scale_color_lancet(name = 'Age group')+
+  scale_x_continuous(breaks = 2010:2017,labels = 2010:2017,expand = c(0.02,0.02))+
+  scale_shape_manual(values = 15:18)+
+  theme(legend.key.size = unit(.45,'cm'),
+        legend.key.width = unit(.45,'cm'),
+        legend.position = c(.9,.8))
+
+ggplot(df, aes(x= Year, y = Prevalence, shape = `Age group`))+
+  geom_errorbar(aes(ymin = lo,ymax = up),color = 'black',width = .2, size = .5,
+                position = position)+
+  scale_y_continuous(expand = c(0,0))+
+  geom_point(size = 3,position = position)+
+  theme_classic()+
+  labs(y = 'Prevalence (%)')+
+  scale_x_continuous(breaks = 2010:2017,labels = 2010:2017,expand = c(0.02,0.02))+
+  scale_shape_manual(name = 'Age group',values = 15:18)+
+  theme(legend.key.size = unit(.45,'cm'),
+        legend.key.width = unit(.45,'cm'),
+        legend.position = c(.9,.8))
+
+ggplot(df, aes(x = Year, y = Prevalence, fill = `Age group`))+
+  geom_errorbar(aes(ymin = lo,ymax = up), color = 'black',width = .2, size = .5,
+                position = position)+
+  geom_point(color = 'gray20',position = position,size = 3,shape = 21)+
+  scale_y_continuous(expand = c(0,0))+
+  theme_classic()+
+  labs(y = 'Prevalence (%)')+
+  scale_fill_lancet(name = 'Age group')+
+  scale_x_continuous(breaks = 2010:2017,labels = 2010:2017,
+                     expand = c(0.02,0.02))+
+  theme(legend.key.size = unit(.45,'cm'),
+        legend.key.width = unit(.45,'cm'),
+        legend.position = c(.9,.8))
+
+
+
+#根据画布大小，合理设置元素大小
+ggplot(mtcars,aes(mpg, qsec, fill = factor(cyl)))+
+  geom_point(shape = 21, color = 'gray50')+
+  scale_fill_lancet(name = 'cyl')+
+  theme_test()+
+  theme(legend.position = c(.15,.8))
+
+ggplot(mtcars,aes(mpg, qsec, fill = factor(cyl)))+
+  geom_point(shape = 21, color = 'gray50',size = 3.5)+
+  scale_fill_lancet(name = 'cyl')+
+  theme_test()+
+  theme(legend.position = c(.15,.8))
+
+#code 104
+df <- tibble(Age = rep(c('0-19','20-34','35-49','50-64','65+'),2),
+             Sex = rep(c('Male','Female'),each = 5),
+             Values = c(18,21,20,26,29,15,18,15,22,23))
+
+p1 <- ggplot(df,aes(Age,weight = Values, fill = Sex))+
+  geom_hline(yintercept = seq(10,20,10),color = 'gray')+
+  geom_bar(position = 'dodge',color = 'gray40')+
+  scale_y_continuous(expand = c(0,0))+
+  ylab('Values')+
+  theme_classic()+
+  scale_fill_jco()+
+  theme(legend.position = c(.15,.85))
+
+p2 <- ggplot(df,aes(Age,weight = Values, fill = Sex))+
+  geom_hline(yintercept = seq(10,20,10),color = 'gray')+
+  geom_bar(position = 'dodge',width = 0.7,color = 'gray')+
+  scale_y_continuous(expand = c(0,0))+
+  ylab('Values')+
+  theme_classic()+
+  scale_fill_jco()+
+  theme(legend.position = c(.15,.85))
+plot_grid(p1,p2,ncol = 2,labels = LETTERS[1:2],align = c('v','h'))
+
+#改变横轴和纵轴的刻度及其标签
+df <- readxl::read_excel('~/desktop/JLX/graphs-data/code56data.xlsx')
+df <- df %>% mutate(
+  `Age group` = factor(`Age group`,
+                       levels = c('0-<1','1-<2','2-<5','Total')))
+
+position <- position_dodge(width = .7)
+p1 <- ggplot(df, aes(x= Year, y = Prevalence, color = `Age group`))+
+  geom_errorbar(aes(ymin = lo,ymax = up,group = `Age group`),color = 'black',
+                width = .2, size = .5,position = position)+
+  geom_point(size = 3,position = position)+
+  theme_classic()+
+  labs(y = 'Prevalence (%)')+
+  scale_color_lancet(name = 'Age group')+
+  theme(legend.key.size = unit(.45,'cm'),
+        legend.key.width = unit(.45,'cm'),
+        legend.position = c(.9,.8))
+
+p2 <- ggplot(df, aes(x= Year, y = Prevalence/100, color = `Age group`,))+
+  geom_errorbar(aes(ymin = lo/100,ymax = up/100,group = `Age group`),color = 'black',
+                width = .2, size = .5,
+                position = position)+
+  geom_point(size = 3,position = position)+
+  theme_classic()+
+  labs(y = 'Prevalence')+
+  scale_color_lancet(name = 'Age group')+
+  scale_x_continuous(breaks = 2010:2017,labels = 2010:2017,expand = c(0.02,0.02))+
+  scale_y_continuous(breaks = seq(0.1,0.5,.1),
+                     labels = scales::percent)+
+  scale_shape_manual(values = 15:18)+
+  theme(legend.key.size = unit(.45,'cm'),
+        legend.key.width = unit(.45,'cm'),
+        legend.position = c(.9,.8))
+plot_grid(p1,p2,ncol = 1,labels = LETTERS[1:2],align = c('v','h'))
+
+##让刻度标签扭起来
+ggplot(dsamp,aes(cut,price,fill = color))+
+  geom_bar(stat = 'identity', size = .5, width = .7,position = 'dodge')+
+  theme_classic()+
+  scale_y_continuous(expand = c(0,0))+
+  scale_fill_npg()+
+  theme(axis.text = element_text(size = 12, color = 'black'),
+        axis.text.x = element_text(angle = 45,hjust = 1))
+
+#双纵坐标轴
+set.seed(2019)
+df <- tibble(year = rep(2000:2009,2),
+             sex = rep(c('Male','Female'),each = 10),
+             incidence = c(rnorm(10,20,2),rnorm(10,13,2)),
+             irr = c(abs(rnorm(10,1.5,0.1)),rep(NA,10)))
+
+ggplot(df,aes(year,incidence)) + 
+  geom_smooth(aes(year,irr*10),color = 'blue',alpha = .3)+
+  geom_line(aes(group = sex),color = 'black')+
+  geom_point(aes(fill = sex),color = 'black',size=3,shape = 21)+
+  scale_fill_lancet()+
+  theme_bw()+  ylab('Incidence')+xlab('Year')+
+  theme(legend.position = c(.15,.1),
+        axis.text = element_text(colour = 'black',size = 11),
+        axis.title = element_text(colour = 'black',size = 11))+
+  scale_y_continuous(sec.axis = 
+                       sec_axis(~./10,
+                                name = 'Incidence Rate Ratio'))+
+  scale_x_continuous(breaks = 2000:2009)
+
+#牛包拼图就是牛
+##对齐很重要
+p1 <- ggplot(mtcars, aes(mpg,disp)) + 
+  geom_point() +
+  theme_minimal_grid(14) + 
+  panel_border(color = "black")
+p2 <- ggplot(mtcars, aes(mpg,qsec)) + 
+  geom_point() +
+  theme_minimal_grid(14) + 
+  panel_border(color = "black")
+
+p3 <- plot_grid(p1,p2,ncol=1,align = 'v')
+p4 <- plot_grid(p1,p2,ncol=1)
+plot_grid(p4,p3,ncol = 2)
+
+#合理排列你的图形
+
+p1 <- ggplot(iris, aes(Sepal.Length, fill = Species)) + 
+  geom_density(alpha = 0.5) +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.05))) +
+  theme_minimal_hgrid(12)+
+  theme(legend.position = c(.75,.85))
+
+p2 <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + 
+  geom_point(size = 3) +
+  theme_minimal_grid(12)+
+  theme(legend.position = c(.75,.85))
+
+
+p3 <- ggplot(iris, aes(Sepal.Length, Sepal.Width)) + 
+  geom_point(size = 2)+
+  facet_wrap(~Species,ncol = 3)+
+  theme_bw()+
+  theme(strip.background = element_rect(fill = NA))
+
+plot_grid(p3,plot_grid(p1,p2,labels = c('B','C')),ncol = 1,
+          labels = c('A',''))
+
+#根据图形大小，给予不同的占地面积
+p1 <- ggplot(iris, aes(Sepal.Length, fill = Species)) + 
+  geom_density(alpha = 0.5) +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.05))) +
+  theme_minimal_hgrid(12)+
+  theme(legend.position = c(.75,.85))
+
+p2 <- ggplot(iris, aes(Sepal.Length, Sepal.Width, color = Species)) + 
+  geom_point(size = 3) +
+  theme_minimal_grid(12)+
+  theme(legend.position = c(.75,.85))
+plot_grid(p1,p2,labels = 'AUTO',rel_widths = 1:2,align = 'h')
+
+#子母图
+p1 <- ggplot(mpg, aes(drv)) + 
+  geom_bar(fill = 'skyblue') +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.05))) +
+  theme_minimal_hgrid(12)+
+  theme(legend.position = c(.75,.85))
+
+p2 <-  ggplot(mpg, aes(displ, cty)) +
+  geom_point(size = 3,color = '#3e64ef') +
+  theme(legend.position = c(.75,.85))+
+  theme_classic()
+
+ggdraw(p2)+
+  draw_plot(p1, .5,.5,.5,.5)+
+  draw_plot_label(label = c('a','b'),x = c(0,.5),y = c(1,1))
+
+
+#共用一张图例
+set.seed(2019)
+dsamp <- diamonds[sample(nrow(diamonds), 1000), ]
+p1 <- ggplot(dsamp,aes(carat,price,fill= cut))+
+  geom_point(size = 3,shape =21, color = 'gray30')+
+  theme_classic()+
+  scale_fill_lancet()
+
+p2 <- ggplot(dsamp,aes(depth,price,fill= cut))+
+  geom_point(size = 3,shape =21, color = 'gray30')+
+  theme_classic()+
+  scale_fill_lancet()+
+  theme(legend.position = 'none')
+
+legend <- get_legend(p1)
+
+plot_grid(plot_grid(p1+theme(legend.position = 'none'),
+                    p2,labels = 'auto'),
+          legend,
+          rel_widths = c(2,0.2))
+
+#patchwork
+devtools::install_github("thomasp85/patchwork")
+library(patchwork)
+
+p1 <- ggplot(dsamp,aes(carat,price,fill= cut))+
+  geom_point(size = 3,shape =21, color = 'gray30')+
+  theme_test()+
+  scale_fill_npg()+
+  theme(legend.position = 'none')
+
+p2 <- ggplot(dsamp,aes(cut,price,fill = color))+
+  geom_hline(yintercept = c(5000,1e4,1.5e4),color = 'gray50')+
+  geom_bar(stat = 'identity',width = .7,position = 'dodge')+
+  theme_classic()+
+  scale_y_continuous(expand=c(0,0))+
+  scale_fill_npg()
+
+p3 <- ggplot(dsamp,aes(cut,depth))+
+  geom_violin()+
+  theme_test()
+
+p4 <- ggplot(dsamp,aes(carat,price))+
+  geom_smooth()+
+  theme_bw()
+
+(p2 + (p1 + p3) + p4 + plot_layout(ncol = 1))
+
+(p1 | p4 | p3) / p2
+
+p2 + {
+  p1 + {
+    p4 + p3 + plot_layout(ncol = 1)
+  }
+} +
+  plot_layout(ncol = 1)
+
+#高质量图形的导出
+###内置图形导出函数
+png('P1.png',height = 1200,width = 1200,res = 300)
+ggplot(dsamp,aes(carat,price,fill= cut))+
+  geom_point(size = 3,shape =21, color = 'gray30')+
+  theme_test()+
+  scale_fill_npg()+
+  theme(legend.position = 'none')
+dev.off()
+
+###ggsave函数
+ggplot(dsamp,aes(carat,price,fill= cut))+
+  geom_point(size = 3,shape =21, color = 'gray30')+
+  theme_test()+
+  scale_fill_npg()+
+  theme(legend.position = 'none')
+ggsave('p2.png',height = 10,width = 10,units = 'cm',dpi = 300)
+
+###cairo包
+install.packages('Cairo')
+library(Cairo)
+CairoPNG('P3.png',height = 1200,width = 1200,res = 300)
+ggplot(dsamp,aes(carat,price,fill= cut))+
+  geom_point(size = 3,shape =21, color = 'gray30')+
+  theme_test()+
+  scale_fill_npg()+
+  theme(legend.position = 'none')
+dev.off()
+
+CairoPDF('p1.pdf',height = 6,width = 6)
+ggplot(dsamp,aes(carat,price,fill= cut))+
+  geom_point(size = 3,shape =21, color = 'gray30')+
+  theme_test()+
+  scale_fill_npg()+
+  theme(legend.position = 'none')
+dev.off()
+
+###利用rstudio导出
+
+###export包
+install.packages('export')
+library(export)
+p <- ggplot(dsamp,aes(carat,price,fill= cut))+
+  geom_point(size = 3,shape =21, color = 'gray30')+
+  theme_test()+
+  scale_fill_npg()+
+  theme(legend.position = 'none')
+graph2ppt(p)
+
+
+
+
+
+
