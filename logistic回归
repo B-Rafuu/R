@@ -1,0 +1,71 @@
+rm(list = ls())
+library(rcompanion)
+library(rms)
+library(ResourceSelection)
+library(VGAM)
+any(is.na(Framingham))
+Framingham <-na.exclude(Framingham)
+Framingham$sex <-factor(Framingham$sex)
+attach(Framingham)
+
+#1.1 建模
+mod1 <-glm(chdfate~sex, family = binomial())
+summary(mod1)
+
+mod2 <-glm(chdfate~., data = Framingham, family = binomial())
+summary(mod2)
+
+mod3 <-glm(chdfate~., data = Framingham[,-3], family = binomial())
+summary(mod3)
+
+anova(mod2, mod3, test = 'Chisq')
+
+#1.2 逐步法筛选自变量
+mod.none <-glm(chdfate~1, family = binomial())
+mod.full <-glm(chdfate~., data = Framingham, family = binomial())
+step(mod.none, scope = formula(mod.full), direction = 'both', trace = F)
+
+#1.3 模型提供的信息
+#OR
+exp(coef(mod3))
+#伪R方和P值
+nagelkerke(mod3)
+#hosmer-lemershow检验
+hoslem.test(chdfate, fitted(mod3))
+
+#1.4 作图
+#列线图
+ddist <-datadist(Framingham)
+options(datadist = 'ddist')
+
+
+mod4 <-lrm(chdfate~sex + sbp + scl + age + bmi, Framingham, x = T, y = T)
+nom <-nomogram(mod4, fun = plogis, funlabel = 'CHD Fate', lp = F)
+plot(nom)
+
+#校正曲线
+cal <-rms::calibrate(mod4, method = 'boot', B = 1000, bw = T, rule = 'p', sls = 0.05)
+plot(cal)
+
+#2 多分类logistic回归
+#模拟数据
+Framingham$scl.f <- cut(scl, quantile(scl), labels = c('A', 'B', 'C', 'D'),
+                        ordered_result = T, include.lowest = T)
+attach(Framingham)
+
+#2.1 建模
+mod.p <-vglm(scl.f~sbp+age+bmi, family = cumulative(reverse = T, parallel = T))
+summary(mod.p)
+
+#2.2 平行性检验
+mod.np <-vglm(scl.f~sbp+age+bmi, family = cumulative(reverse = T, parallel = F))
+lrtest(mod.p, mod.np)
+
+mod.n <-vglm(scl.f~1, family = cumulative(reverse = T, parallel = F))
+lrtest(mod.p, mod.n)
+
+summary(mod.np)
+
+vglm(scl.f~sbp+age+bmi, family = cumulative(reverse = T, parallel = F~sbp))
+
+vglm(scl.f~sbp+age+bmi, family = multinomial(parallel = F, refLevel = 1))
