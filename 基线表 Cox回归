@@ -1,0 +1,112 @@
+rm(list = ls())
+setwd("C://Users//77592//Desktop//Code")
+library(xlsx)
+library(survival)
+library(plyr)
+BaseLine <-read.xlsx('基线资料数据—作业.xlsx', sheetIndex = 1, header = T, encoding = 'UTF-8')
+BaseLine <-BaseLine[1:80,]
+
+#注：如果向量是字符型（character），需转换为因子型（factor）向量
+#BaseLine$Gender <-factor(BaseLine$Gender, levels = unique(BaseLine$Gender))
+#BaseLine$Obesity <-factor(BaseLine$Obesity, levels = unique(BaseLine$Obesity))
+#BaseLine$Pathologic.differention <-factor(BaseLine$Pathologic.differention, levels = unique(BaseLine$Pathologic.differention))
+#BaseLine$Metastasis <-factor(BaseLine$Metastasis, levels = unique(BaseLine$Metastasis))
+#BaseLine$Vital.states..at.follow.up. <-factor(BaseLine$Vital.states..at.follow.up., levels = unique(BaseLine$Vital.states..at.follow.up.))
+
+#1 基线表
+# 1.1分组
+BaseLine$Age[BaseLine$Age.y. >55] <-'>55'
+BaseLine$Age[BaseLine$Age.y. <=55] <-'<=55'
+
+BaseLine$Duration[BaseLine$Duration.of.Disease.y. >=6] <-'6-10'
+BaseLine$Duration[BaseLine$Duration.of.Disease.y. <=5] <-'0-5'
+
+BaseLine$ExpressionofABC[BaseLine$ABC.IHCScore. <=2] <-'Low'
+BaseLine$ExpressionofABC[BaseLine$ABC.IHCScore. >=3] <-'High'
+
+# 1.2频率统计
+Base <- subset(BaseLine, select = -c(Age.y., Duration.of.Disease.y., ABC.IHCScore., Follow.up.m.))
+Freq <-lapply(Base[,1:10], table)
+Prop <-lapply(Freq[1:10], prop.table)
+
+# 1.3建表
+Character <-c(names(Freq[1]), names(Freq[[1]]))
+Noc <- c(NA, paste0(Freq[[1]], '(', Prop[[1]], ')'))
+Characteristics <-data.frame('Characteristics' = Character, 'Number of Cases' = Noc)
+
+Char <- NULL
+for (i in 1:10) {
+  Character <- c(names(Freq[i]), names(Freq[[i]]))
+  Noc <-c(NA, paste0(Freq[[i]], '(', Prop[[i]]*100, ')'))
+  Characteristics <-data.frame('Characteristics' = Character, 'Number of Cases(%)' = Noc)
+  Char <-rbind(Char, Characteristics)
+}
+View(Char)
+
+# 1.4 输出
+write.xlsx(Char, 'Characteristics.xlsx', col.names = T, row.names = F, showNA = F)
+
+
+# 2 Cox风险回归
+# 2.1 转换数据类型
+BaseLine$Pathologic.differention <-factor(BaseLine$Pathologic.differention, ordered = T,
+                                          levels = c('Poorly', 'Moderately', 'Highly'))
+BaseLine[,c(1, 3, 6, 7, 10)] <-lapply(BaseLine[, c(1, 3, 6, 7, 10)], as.numeric)
+
+# 2.2 单因素Cox回归
+BaSurv <-Surv(time = BaseLine$Follow.up.m., event = BaseLine$Vital.states..at.follow.up.)
+BaseLine$BaSurv <-with(BaseLine, BaSurv)
+
+GCox <-coxph(BaSurv~Gender, data = BaseLine)
+GSum <-summary(GCox)
+HR <- round(GSum$coefficients[,2],2)
+PValue <-round(GSum$coefficients[,5],3)
+CI <-paste0(round(GSum$conf.int[,3:4],2),collapse = '-')
+Unicox <-data.frame('Characteristic' = 'Gender',
+                    'Hazard Ratio' = HR,
+                    'CI95' = CI,
+                    'P Value' = PValue)
+
+UniCox <-function(x){
+  FML <- as.formula(paste0('BaSurv~', x))
+  GCox <-coxph(FML, data = BaseLine)
+  GSum <-summary(GCox)
+  HR <- round(GSum$coefficients[,2],2)
+  PValue <-round(GSum$coefficients[,5],3)
+  CI <-paste0(round(GSum$conf.int[,3:4],2), collapse = '-')
+  Unicox <-data.frame('Characteristics' = x,
+                      'Hazard Ratio' = HR,
+                      'CI95' = CI, 
+                      'P Value' = PValue)
+  return(Unicox)
+}
+UniCox('Gender')
+
+VarNames <-colnames(BaseLine)[c(1:8,11)]
+UniVar <-lapply(VarNames, UniCox)
+UniVar <-ldply(UniVar, data.frame)
+UniVar$Characteristics[UniVar$P.Value <0.05]
+
+# 2.3 多因素Cox回归
+fml <-as.formula(paste0('BaSurv~', paste0(UniVar$Characteristics[UniVar$P.Value <0.05], collapse = '+')))
+Multicox <-coxph(fml, data = BaseLine)
+MultiSum <-summary(Multicox)
+
+MultiName <-as.character(UniVar$Characteristics[UniVar$P.Value <0.05])
+MHR <-round(MultiSum$coefficients[,2],2)
+MPV <-round(MultiSum$coefficients[,5],3)
+MCIL <-round(MultiSum$conf.int[,3],2)
+MCIU <-round(MultiSum$conf.int[,4],2)
+MCI <-paste0(MCIL, '-', MCIU)
+MulCox <-data.frame('Characteristics' = 'MultiName',
+                    'Hazard Ratio' = HR,
+                    'CI95' = MCI,
+                    'P Value' = MPV)
+
+# 2.4 整合表格
+Final <-merge.data.frame(UniVar, MulCox, By = 'Characteristics',
+                         all = T, sort = T)
+
+# 2.5 输出
+write.xlsx(Final, 'CoxReg.xlsx', col.names = T, row.names = F, showNA = F)
+
