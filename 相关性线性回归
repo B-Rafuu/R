@@ -1,0 +1,97 @@
+rm(list = ls())
+library(ggpubr)
+library(car)
+
+setwd("C://Users//77592//Desktop//Code")
+attach(LungCapData)
+
+#1 相关性
+#1.1 散点图评估线性关系
+plot(Age, LungCap)
+
+#1.2 正态性检验
+sapply(list(Age, LungCap), shapiro.test)
+
+#1.3 pearson相关性检验
+cor.test(LungCap, Age)
+
+#1.4 spearman或kendall检验
+Smoke.N <-as.numeric(as.factor(Smoke))
+cor.test(LungCap, Smoke.N, method = 'spearman', exact = F)
+cor.test(LungCap, Age, method = 'kendall')
+
+#2 线性回归
+#2.1 简单线性回归
+lm.age <-lm(LungCap~Age)
+summary(lm.age)
+
+#2.2 模型诊断
+shapiro.test(residuals(lm.age))
+plot(lm.age)
+
+#2.3 多因素线性回归
+lm.mlt <-lm(LungCap~Age+Height+Smoke+Gender+Caesarean)
+lm.mlt <-lm(LungCap~., data = LungCapData)
+summary(lm.mlt)
+
+Age.c <-cut(Age, c(3, 9, 12, 20))
+lm.mlt2 <-lm(LungCap~as.numeric(Age.c)+Height)
+summary(lm.mlt2)
+
+shapiro.test(residuals(lm.mlt))
+plot(lm.mlt)
+
+##方差分析
+lm.smoke <-lm(LungCap~Smoke)
+anova(lm.smoke)
+aov(LungCap~Smoke)
+
+lm.twoway <-lm(LungCap~Smoke*Gender)
+anova(lm.twoway)
+
+anova(lm(LungCap~Smoke + Smoke:Gender))
+anova(lm(LungCap~Smoke + Gender))
+aov(LungCap~Smoke + Smoke:Gender)
+
+#2.4 模型的比较和选择
+#2.4.1 两个模型的比较
+anova(lm.age, lm.mlt)
+
+#2.4.2 逐步法筛选变量
+extractAIC(lm.age)
+lm.none <-lm(LungCap~1)
+summary(lm.none)
+lm.full <-lm(LungCap~., data = LungCapData)
+
+step(lm.none, scope = formula(lm.full), direction = 'forward')
+step(lm.full, scope = formula(lm.none), direction = 'backward')
+step(lm.none, scope = formula(lm.full), direction = 'both', trace = F)
+lm.final <-lm(LungCap~ Height + Age + Smoke + Gender + Caesarean)
+plot(lm.final)
+
+#3 作图
+#3.1 相关性散点图
+plot(Age, LungCap)
+text(3, 13, 'r = 0.82, P <0.001', adj = 0)
+
+ggplot(LungCapData, aes(x = Age, y = LungCap))+
+  geom_point()+
+  annotate(geom = 'text', x = 3, y = 13, label = 'r =0.82, P <0.001', adj = 0)
+
+ggscatter(LungCapData, x = 'Age', y = 'LungCap', cor.coef = T, cor.method = 'pearson')
+
+#3.2 简单线性回归
+plot(Age, LungCap)
+abline(lm.age)
+
+ggplot(LungCapData, aes(x = Age, y = LungCap))+
+  geom_point()+
+  geom_smooth(method = 'lm', se = F)+
+  annotate(geom = 'text', x = 3, y = 13, label = "r^2 =='0.67, P <0.001'", adj = 0, parse = T)
+
+ggscatter(LungCapData, x = 'Age', y = 'LungCap', add = 'reg.line')+
+  annotate(geom = 'text', x = 3, y = 13, label = "r^2 =='0.67, P <0.001'", adj = 0, parse = T)
+
+#3.3 多因素线性回归
+#变量添加图
+avPlots(lm.final)
