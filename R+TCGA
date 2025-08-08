@@ -1,0 +1,38 @@
+rm(list = ls())
+setwd("D//TCGA")
+library(RTCGAToolbox)
+
+Data <-getFirehoseData(dataset = 'BRCA', runDate = '20160128',
+                       mRNAArray = T, Mutation = T)
+clin <-getData(Data, 'clinical')
+mRNA <-Data@mRNAArray[[1]]@DataMatrix
+FEN1 <-data.frame(FEN1 = mRNA['FEN1',])
+
+# 统一编号格式
+FEN1$Sample <-tolower(substr(rownames(FEN1),1,12))
+FEN1$Sample <-gsub('-', '.', FEN1$Sample)
+
+# 提取肿瘤样本
+Num <-which(as.numeric(substr(rownames(FEN1),14,15)) <10)
+FEN1 <-FEN1[Num,]
+
+# 合并临床信息
+clin$Sample <-rownames(clin)
+FEN1wclin <-merge.data.frame(FEN1, clin, by = 'Sample')
+
+# 归纳分期
+FEN1wclin$Stage <-FEN1wclin$Pathologic_stage
+levels(factor(FEN1wclin$Stage))
+FEN1wclin$Stage <-gsub('[a-c]', '', substr(FEN1wclin$Stage, 7, nchar(FEN1wclin$Stage)))
+FEN1wclin$Stage <-toupper(FEN1wclin$Stage)
+FEN1wclin <-FEN1wclin[!is.na(FEN1wclin$Stage)]
+FEN1wclin <-FEN1wclin[FEN1wclin$Stage != 'X',]
+
+# 作图
+with(FEN1wclin, boxplot(split(scale(FEN1), Stage), col = topo.colors(4, alpha = 0.5)))
+text(3, 3, 5, 'Spearman correlation\ntest P = 0.014', adj = 0)
+title(xlab = 'AJCC Stages', ylab = 'FEN1 Expression')
+
+# Spearman检验
+FEN1wclin$Stage <-factor(FEN1wclin$Stage, ordered = T, levels = c('I', 'II', 'III', 'IV'))
+cor.test(FEN1wclin$FEN1, as.numeric(FEN1wclin$Stage), method = 'spearman')
