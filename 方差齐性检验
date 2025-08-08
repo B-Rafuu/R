@@ -1,0 +1,85 @@
+rm(list = ls())
+library(ggpubr)
+library(ggsci)
+library(ggsignif)
+library(car)
+library(userfriendlyscience)
+data("ToothGrowth")
+ToothGrowth$dosef <-factor(ToothGrowth$dose, ordered = T)
+
+#1 单因素方差分析
+# 1.1 正态性检验
+with(ToothGrowth, tapply(len, dosef, shapiro.test))
+
+#1.2 方差齐性检验
+leveneTest(len~dosef, ToothGrowth)
+
+#1.3 单因素ANOVA
+AOV1 <-aov(len~dosef, ToothGrowth)
+summary(AOV1)
+
+#1.4 诊断模型
+res1 <-residuals(AOV1)
+res1 <-AOV1$residuals
+shapiro.test(res1)
+ggqqplot(res1)
+
+leveneTest(res1~dosef, ToothGrowth)
+
+#1.5 两两比较
+Tu <-TukeyHSD(AOV1)
+P <-Tu$dosef[,4]
+format(P, scientific = F)
+
+#1.6 作图
+ggboxplot(ToothGrowth, x = 'dosef', y = 'len', fill = 'dosef', palette = 'npg') +
+  stat_compare_means(method = 'anova')
+
+comp <-list(c('0.5', '1'), c('0.5', '2'), c('1', '2'))
+mytheme <-theme_classic2(base_size = 16)
+ggplot(ToothGrowth, aes(x = dosef, y = len, fill = dosef))+
+  stat_boxplot(geom = 'errorbar')+
+  geom_boxplot()+
+  geom_point(size = 2, alpha = 0.6)+
+  geom_signif(comparisons = comp,
+              y_position = c(36, 40, 38),
+              annotations = format(unname(P), scientific = T, digits = 3))+
+  labs(x = NULL, y = 'Tooth Length (cm)', title = 'Tooth Growth', fill = 'Dose (mg/d)')+
+  scale_fill_npg()+
+  mytheme
+
+#1.7 welch ANOVA
+oneway.test(len~dosef, ToothGrowth, var.equal = F)
+GH <-with(ToothGrowth, posthocTGH(len, dosef, method = 'games-howell', digits = 3))
+GH$output$games.howell
+
+#2 Kruskal wallis检验
+kruskal.test(len~dosef, ToothGrowth)
+with(ToothGrowth, pairwise.wilcox.test(len, dosef, exact = F))
+
+#3 双因素方差分析
+#3.1 双因素ANOVA
+AOV2 <-aov(len~dosef*supp, ToothGrowth)
+AOV2 <-aov(len~dosef+supp+dosef:supp, ToothGrowth)
+summary(AOV2)
+
+#3.2 诊断模型
+res2 <-residuals(AOV2)
+shapiro.test(res2)
+ggqqplot(res2)
+leveneTest(res2~dosef*supp, ToothGrowth)
+ 
+#3.4 两两比较
+TK <-TukeyHSD(AOV2, 'dosef:supp')
+TKint <-as.data.frame(TK$'dosef:supp')
+TKint$pair <-row.names(TKint)
+TKint$sig <-cut(TKint$'p adj', c(0, 0.05, 1), labels = c('P <0.05', 'NS'), right = F)
+
+#3.5 作图
+ggplot(TKint, aes(x = 'p adj', y = pair, color = sig))+
+  geom_errorbarh(aes(xmin = lwr, xmax = upr), height = 0.3) +
+  geom_point(aes(x = diff))+
+  geom_vline(xintercept = 0, lty = 2)+
+  labs(x = NULL, y = NULL, title = '95% family-wise confidence level', color = 'Significance')+
+  scale_color_npg()+
+  mytheme
