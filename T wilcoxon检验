@@ -1,0 +1,60 @@
+rm(list = ls())
+library(ggpubr)
+
+data("ToothGrowth")
+
+# 正态性检验
+ggdensity(ToothGrowth$len, y = "..count..")
+ggdensity(ToothGrowth, x = 'len', color = 'supp', fill = 'supp', palette = c('grey', 'darkgreen'),
+          rug = T, add = 'median')
+gghistogram(ToothGrowth, x = 'len', color = 'supp', fill = 'supp', palette = c('grey', 'darkgreen'),
+            rug = T, add = 'median', bins = 30)
+ggqqplot(ToothGrowth, x = 'len', color = 'supp')
+
+shapiro.test(ToothGrowth$len)
+shapiro.test(ToothGrowth$len[ToothGrowth$supp == 'OJ'])
+with(ToothGrowth, shapiro.test(len[supp == 'OJ']))
+with(ToothGrowth, shapiro.test(len[supp == 'VC']))
+
+with(ToothGrowth, tapply(len, supp, shapiro.test))
+
+# wilcoxon检验
+wilcox.test(len~supp, data = ToothGrowth, exact = F, alternative = 't')
+wilcox.test(len~supp, data = ToothGrowth, exact = F, alternative = 't', paired = T)
+wilcox.test(ToothGrowth$len, mu = 15, exact = F, alternative = 't')
+
+# 方差齐性检验
+var.test(len~supp, data = ToothGrowth)
+
+# T检验
+t.test(len~supp, data = ToothGrowth, alternative = 't', var.equal = T)
+diff <-with(ToothGrowth, len[supp == 'OJ'] - len[supp =='VC'])
+shapiro.test(diff)
+t.test(len~supp, data = ToothGrowth, alternative = 't', paired = T)
+t.test(ToothGrowth$len, mu = 15, alternative = 't')
+
+# 作图
+ggboxplot(ToothGrowth, x = 'supp', y = 'len', color = 'supp',
+          xlab = 'Supplements', ylab = 'Tooth Length', title = 'Tooth Growth') +
+  stat_compare_means(method = 't.test', paired = T, method.args = list(alternative = 'g'),
+                     label.x = 2, label.y = 38)
+
+ggboxplot(ToothGrowth, x = 'supp', y = 'len', color = 'supp',
+          xlab = 'Supplements', ylab = 'Tooth Length', title = 'Tooth Growth') +
+  stat_compare_means(method = 't.test', method.args = list(alternative = 'g', var.equal = F),
+                     label.x = 2, label.y = 38)
+
+P <- ggpaired(ToothGrowth, x = 'supp', y = 'len', color = 'supp',
+              xlab = 'Supplements', ylab = 'Tooth Length', title = 'Tooth Growth') +
+  stat_compare_means(method = 't.test', paired = T, method.args = list(alternative = 'g'),
+                     label.x = 2, label.y = 38)
+
+ggpar(P, legend = 'right',
+      xlab = 'Supplements', ylab = 'Tooth Length', title = 'Tooth Growth')
+
+library(ggsci)
+ggboxplot(ToothGrowth, x = 'supp', y = 'len', color = 'supp',
+          xlab = 'Supplements', ylab = 'Tooth Length', title = 'Tooth Growth') +
+  stat_compare_means(method = 't.test', paired = T, method.args = list(alternative = 'g'),
+                     label.x = 2, label.y = 38) +
+  scale_fill_aaas()
