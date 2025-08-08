@@ -1,0 +1,26 @@
+rm(list = ls())
+library(survival)
+
+Lung <-lung
+
+# Kaplan-Meier曲线
+# 基本流程：Surv()、survfit()、survdiff()
+# 绘图用plot()
+
+Lusurv <-Surv(time = Lung$time, event = Lung$status)
+Lufit <-survfit(Lusurv~Lung$sex)
+survdiff(Lusurv~Lung$sex)
+
+#绘图及美化
+plot(Lufit, conf.int = 'none',
+     col = c('#22cc99', '#772222'), lwd = 2, mark.time = T,
+     xlab = 'Time', ylab = 'Survial Probability')
+abline(h = 0.5, lty = 3)
+abline(v = 270, lty = 3)
+abline(v = 426, lty = 3)
+legend('bottomleft', c('Male', 'Female'),
+       col = c('#22cc99', '#772222'), lwd = 2)
+text(900, 0.9, 'p = 0.00031')
+
+
+
